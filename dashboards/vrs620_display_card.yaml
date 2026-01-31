@@ -1,0 +1,229 @@
+# ===========================================
+# VRS 620 DISPLAY NACHBILDUNG - Dashboard Card
+# Erstellt von LISA für Murat
+# ===========================================
+# @version 1.0.0
+# @date 2026-01-31
+#
+# INSTALLATION:
+# 1. In HA Dashboard bearbeiten
+# 2. "Manuelle Karte" hinzufügen
+# 3. Diesen YAML-Code einfügen
+# ===========================================
+
+type: custom:stack-in-card
+mode: vertical
+cards:
+  # Header mit Datum/Zeit und Außentemperatur
+  - type: custom:mushroom-template-card
+    primary: "{{ now().strftime('%a %d.%m.%y') }}   {{ now().strftime('%H:%M') }}"
+    secondary: ""
+    icon: ""
+    badge_icon: ""
+    badge_color: ""
+    entity: sensor.vrs620_aussentemperatur
+    tap_action:
+      action: none
+    card_mod:
+      style: |
+        ha-card {
+          background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+          border-radius: 12px 12px 0 0;
+          padding: 12px 16px;
+          position: relative;
+        }
+        .primary {
+          font-family: 'Courier New', monospace;
+          font-size: 18px !important;
+          color: #90caf9 !important;
+          font-weight: bold;
+        }
+        ha-card::after {
+          content: '{{ states("sensor.vrs620_aussentemperatur") }}°C';
+          position: absolute;
+          right: 16px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-family: 'Courier New', monospace;
+          font-size: 24px;
+          font-weight: bold;
+          color: #90caf9;
+        }
+
+  # Wartungs-Hinweis (wenn nötig)
+  - type: conditional
+    conditions:
+      - entity: sensor.vrs620_wartung
+        state_not: "OK"
+    card:
+      type: custom:mushroom-template-card
+      primary: "⚠️ Wartung"
+      secondary: ""
+      icon: mdi:wrench
+      icon_color: amber
+      card_mod:
+        style: |
+          ha-card {
+            background: #1a237e;
+            padding: 4px 16px;
+          }
+          .primary {
+            font-family: 'Courier New', monospace;
+            color: #ffc107 !important;
+          }
+
+  # Trennlinie
+  - type: custom:mushroom-template-card
+    primary: ""
+    card_mod:
+      style: |
+        ha-card {
+          background: #1a237e;
+          height: 2px;
+          border-top: 1px solid #3949ab;
+        }
+
+  # BRENNERKREIS Zeile
+  - type: custom:mushroom-template-card
+    primary: "BRENNERKREIS"
+    secondary: "{{ states('sensor.ebusd_hc_operatingmode') | title }}"
+    icon: mdi:fire
+    icon_color: "{{ 'orange' if states('sensor.heizung_brenner_aktiv') == 'on' else 'grey' }}"
+    entity: sensor.vrs620_brennerkreis_soll
+    badge_icon: "{{ 'mdi:white-balance-sunny' if states('sensor.ebusd_hc_operatingmode') != 'eco' else 'mdi:leaf' }}"
+    badge_color: "{{ 'amber' if states('sensor.ebusd_hc_operatingmode') != 'eco' else 'green' }}"
+    tap_action:
+      action: more-info
+    card_mod:
+      style: |
+        ha-card {
+          background: #1a237e;
+          padding: 8px 16px;
+        }
+        .primary {
+          font-family: 'Courier New', monospace;
+          font-size: 14px !important;
+          color: #90caf9 !important;
+        }
+        .secondary {
+          font-family: 'Courier New', monospace;
+          color: #64b5f6 !important;
+        }
+        ha-card::after {
+          content: '{{ states("sensor.vrs620_brennerkreis_soll") }}°C';
+          position: absolute;
+          right: 16px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-family: 'Courier New', monospace;
+          font-size: 16px;
+          color: #90caf9;
+        }
+
+  # MISCHER Zeile (zeigt Vorlauf-Ist)
+  - type: custom:mushroom-template-card
+    primary: "MISCHER"
+    secondary: "Auto"
+    icon: mdi:valve
+    icon_color: blue
+    entity: sensor.heizung_vorlauf_celsius
+    badge_icon: mdi:white-balance-sunny
+    badge_color: amber
+    tap_action:
+      action: more-info
+    card_mod:
+      style: |
+        ha-card {
+          background: #1a237e;
+          padding: 8px 16px;
+        }
+        .primary {
+          font-family: 'Courier New', monospace;
+          font-size: 14px !important;
+          color: #90caf9 !important;
+        }
+        .secondary {
+          font-family: 'Courier New', monospace;
+          color: #64b5f6 !important;
+        }
+        ha-card::after {
+          content: '{{ states("sensor.heizung_vorlauf_celsius") | round(0) }}°C';
+          position: absolute;
+          right: 16px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-family: 'Courier New', monospace;
+          font-size: 16px;
+          color: #90caf9;
+        }
+
+  # VPM-W (Warmwasser) Zeile
+  - type: custom:mushroom-template-card
+    primary: "VPM-W"
+    secondary: "Auto"
+    icon: mdi:water-boiler
+    icon_color: cyan
+    entity: sensor.vrs620_warmwasser_soll
+    badge_icon: mdi:moon-waning-crescent
+    badge_color: grey
+    tap_action:
+      action: more-info
+    card_mod:
+      style: |
+        ha-card {
+          background: #1a237e;
+          padding: 8px 16px;
+        }
+        .primary {
+          font-family: 'Courier New', monospace;
+          font-size: 14px !important;
+          color: #90caf9 !important;
+        }
+        .secondary {
+          font-family: 'Courier New', monospace;
+          color: #64b5f6 !important;
+        }
+        ha-card::after {
+          content: '{{ states("sensor.vrs620_warmwasser_soll") }}°C';
+          position: absolute;
+          right: 16px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-family: 'Courier New', monospace;
+          font-size: 16px;
+          color: #90caf9;
+        }
+
+  # Trennlinie unten
+  - type: custom:mushroom-template-card
+    primary: ""
+    card_mod:
+      style: |
+        ha-card {
+          background: #1a237e;
+          height: 2px;
+          border-top: 1px solid #3949ab;
+        }
+
+  # Footer mit VRS 620 Bezeichnung
+  - type: custom:mushroom-template-card
+    primary: "VRS 620"
+    secondary: ""
+    icon: ""
+    tap_action:
+      action: none
+    card_mod:
+      style: |
+        ha-card {
+          background: linear-gradient(135deg, #283593 0%, #1a237e 100%);
+          border-radius: 0 0 12px 12px;
+          padding: 8px 16px;
+          text-align: center;
+        }
+        .primary {
+          font-family: 'Courier New', monospace;
+          font-size: 16px !important;
+          color: #90caf9 !important;
+          text-align: center;
+          width: 100%;
+        }

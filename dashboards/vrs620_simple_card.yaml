@@ -1,0 +1,81 @@
+# ===========================================
+# VRS 620 DISPLAY - Einfache Version (ohne custom cards)
+# Erstellt von LISA für Murat
+# ===========================================
+# @version 1.0.0
+# @date 2026-01-31
+#
+# INSTALLATION:
+# 1. In HA Dashboard bearbeiten
+# 2. "Manuelle Karte" hinzufügen
+# 3. Diesen YAML-Code einfügen
+# ===========================================
+
+type: vertical-stack
+cards:
+  # VRS 620 Header
+  - type: markdown
+    content: |
+      ## 🖥️ VRS 620 Live
+      {{ now().strftime('%a %d.%m.%y  %H:%M') }}
+    card_mod:
+      style: |
+        ha-card {
+          background: #1565c0;
+          color: white;
+          text-align: center;
+        }
+
+  # Außentemperatur groß
+  - type: entity
+    entity: sensor.vrs620_aussentemperatur
+    name: "Außentemperatur"
+    icon: mdi:thermometer
+    card_mod:
+      style: |
+        ha-card {
+          background: #1976d2;
+          --primary-text-color: white;
+          --secondary-text-color: #bbdefb;
+        }
+
+  # Heizkreise als Entities
+  - type: entities
+    title: ""
+    show_header_toggle: false
+    card_mod:
+      style: |
+        ha-card {
+          background: #1e88e5;
+          --primary-text-color: white;
+          --secondary-text-color: #bbdefb;
+        }
+    entities:
+      - type: custom:template-entity-row
+        entity: sensor.ebusd_hc_operatingmode
+        name: "BRENNERKREIS"
+        icon: mdi:fire
+        state: "{{ states('sensor.ebusd_hc_operatingmode') | title }}  ☀️  {{ ((states('sensor.ebusd_hc_flowtempdesired') | float(32) - 32) * 5/9) | round(0) }}°C"
+
+      - type: custom:template-entity-row
+        entity: sensor.heizung_vorlauf_celsius
+        name: "MISCHER"
+        icon: mdi:valve
+        state: "Auto  ☀️  {{ states('sensor.heizung_vorlauf_celsius') | round(0) }}°C"
+
+      - type: custom:template-entity-row
+        entity: sensor.vrs620_warmwasser_soll
+        name: "VPM-W"
+        icon: mdi:water-boiler
+        state: "Auto  🌙  {{ states('sensor.vrs620_warmwasser_soll') }}°C"
+
+  # VRS 620 Footer
+  - type: markdown
+    content: |
+      <center>**VRS 620**</center>
+    card_mod:
+      style: |
+        ha-card {
+          background: #1565c0;
+          color: #90caf9;
+        }

@@ -6,6 +6,23 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 
 ---
 
+## [1.3.0] - 2026-01-31
+
+### Hinzugefügt
+- **VRS 620 Display Nachbildung** - Digitale Kopie des Vaillant Reglers in HA
+  - `sensor.vrs620_aussentemperatur` - Außentemperatur wie am VRS 620 (7°C)
+  - `sensor.vrs620_brennerkreis_soll` - Brennerkreis Soll-Temperatur
+  - `sensor.vrs620_warmwasser_soll` - Warmwasser Soll-Temperatur (45°C)
+- **Dashboard Cards** - 3 Versionen für VRS 620 Display
+  - `vrs620_display_card.yaml` - Mit Mushroom Cards (styled)
+  - `vrs620_simple_card.yaml` - Einfache Version
+  - `vrs620_native_card.yaml` - Nur native HA Cards (empfohlen)
+
+### Geändert
+- `statistics_sensors.yaml` v1.3.0 - VRS 620 Sensoren hinzugefügt
+
+---
+
 ## [1.2.1] - 2026-01-31
 
 ### Gefixt
@@ -121,6 +138,7 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 
 | Version | Datum | Beschreibung |
 |---------|-------|--------------|
+| 1.3.0 | 2026-01-31 | VRS 620 Display Nachbildung |
 | 1.2.1 | 2026-01-31 | Weather API F→C Konvertierung gefixt |
 | 1.2.0 | 2026-01-31 | Wetter-Vergleich (eBUS vs Wetterdienst) |
 | 1.1.0 | 2026-01-31 | F→C Konvertierung gefixt |

@@ -1,0 +1,87 @@
+# ===========================================
+# VRS 620 DISPLAY - Native HA Version
+# Erstellt von LISA für Murat
+# ===========================================
+# @version 1.0.0
+# @date 2026-01-31
+#
+# INSTALLATION:
+# 1. In HA Dashboard bearbeiten → "Karte hinzufügen"
+# 2. "Manuell" wählen
+# 3. Diesen YAML-Code einfügen
+#
+# Funktioniert ohne zusätzliche HACS Cards!
+# ===========================================
+
+type: vertical-stack
+cards:
+  # ========== HEADER ==========
+  - type: markdown
+    content: |
+      <h2 style="margin:0; color:#90caf9; font-family:monospace;">
+        📅 {{ now().strftime('%a %d.%m.%y') }} &nbsp; 🕐 {{ now().strftime('%H:%M') }}
+        <span style="float:right; font-size:1.5em;">
+          🌡️ {{ states('sensor.vrs620_aussentemperatur') }}°C
+        </span>
+      </h2>
+    card_mod:
+      style: |
+        ha-card { background: #1a237e; }
+
+  # ========== BRENNERKREIS ==========
+  - type: glance
+    show_name: true
+    show_icon: true
+    show_state: true
+    columns: 3
+    entities:
+      - entity: sensor.ebusd_hc_operatingmode
+        name: "BRENNERKREIS"
+        icon: mdi:fire
+      - entity: sensor.heizung_brenner_aktiv
+        name: "Status"
+        icon: mdi:power
+      - entity: sensor.vrs620_brennerkreis_soll
+        name: "Soll"
+        icon: mdi:thermometer
+
+  # ========== HEIZKREIS / MISCHER ==========
+  - type: glance
+    show_name: true
+    show_icon: true
+    show_state: true
+    columns: 3
+    entities:
+      - entity: sensor.heizung_vorlauf_celsius
+        name: "Vorlauf"
+        icon: mdi:thermometer-chevron-up
+      - entity: sensor.heizung_ruecklauf_celsius
+        name: "Rücklauf"
+        icon: mdi:thermometer-chevron-down
+      - entity: sensor.ebusd_hc_heatingcurve
+        name: "Heizkurve"
+        icon: mdi:chart-line
+
+  # ========== VPM-W (Warmwasser) ==========
+  - type: glance
+    show_name: true
+    show_icon: true
+    show_state: true
+    columns: 2
+    entities:
+      - entity: sensor.vrs620_warmwasser_soll
+        name: "Warmwasser Soll"
+        icon: mdi:water-boiler
+      - entity: sensor.ebusd_bai_hcpumpmode
+        name: "Pumpen-Modus"
+        icon: mdi:pump
+
+  # ========== FOOTER ==========
+  - type: markdown
+    content: |
+      <center style="font-family:monospace; color:#64b5f6; font-size:1.2em;">
+        <b>━━━ VRS 620 ━━━</b>
+      </center>
+    card_mod:
+      style: |
+        ha-card { background: #1a237e; }

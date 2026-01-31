@@ -2,10 +2,11 @@
 # VAILLANT HEIZUNGS-STATISTIK SENSOREN
 # Erstellt von LISA für Murat
 # ===========================================
-# @version 1.2.1
+# @version 1.3.0
 # @date 2026-01-31
 #
 # CHANGELOG:
+# v1.3.0 - VRS 620 Display Nachbildung hinzugefügt
 # v1.2.1 - Weather API F→C Konvertierung gefixt (liefert auch °F!)
 # v1.2.0 - Wetter-Vergleich hinzugefügt (eBUS vs Wetterdienst)
 # v1.1.0 - F→C Konvertierung korrigiert (Werte IMMER in F)
@@ -116,6 +117,57 @@ template:
         availability: >
           {{ states('sensor.heizung_aussen_celsius') not in ['unknown', 'unavailable']
              and states('weather.forecast_home') not in ['unknown', 'unavailable'] }}
+
+      # ----------------------------------------
+      # VRS 620 DISPLAY NACHBILDUNG
+      # ----------------------------------------
+      # Außentemperatur vom HC Sensor (wie VRS 620 Display zeigt)
+      - name: "VRS620 Aussentemperatur"
+        unique_id: vrs620_aussentemperatur
+        unit_of_measurement: "°C"
+        state_class: measurement
+        device_class: temperature
+        state: "{{ ((states('sensor.ebusd_hc_outsidetemp_temp') | float(32) - 32) * 5/9) | round(0) }}"
+        availability: "{{ states('sensor.ebusd_hc_outsidetemp_temp') not in ['unknown', 'unavailable'] }}"
+
+      # Brennerkreis Soll-Temperatur
+      - name: "VRS620 Brennerkreis Soll"
+        unique_id: vrs620_brennerkreis_soll
+        unit_of_measurement: "°C"
+        state_class: measurement
+        device_class: temperature
+        state: "{{ ((states('sensor.ebusd_hc_flowtempdesired') | float(32) - 32) * 5/9) | round(0) }}"
+        availability: "{{ states('sensor.ebusd_hc_flowtempdesired') not in ['unknown', 'unavailable'] }}"
+
+      # Brennerkreis Betriebsart
+      - name: "VRS620 Brennerkreis Modus"
+        unique_id: vrs620_brennerkreis_modus
+        state: "{{ states('sensor.ebusd_hc_operatingmode') | default('auto') }}"
+
+      # Warmwasser Soll-Temperatur (VPM-W)
+      - name: "VRS620 Warmwasser Soll"
+        unique_id: vrs620_warmwasser_soll
+        unit_of_measurement: "°C"
+        state_class: measurement
+        device_class: temperature
+        state: >
+          {% set temp = states('sensor.ebusd_bai_hwctempmax') %}
+          {% if temp not in ['unknown', 'unavailable'] %}
+            {{ ((temp | float(32) - 32) * 5/9) | round(0) }}
+          {% else %}
+            45
+          {% endif %}
+
+      # Wartungs-Status
+      - name: "VRS620 Wartung"
+        unique_id: vrs620_wartung
+        state: >
+          {% set service = states('sensor.ebusd_bai_hourstillservice') %}
+          {% if service not in ['unknown', 'unavailable'] and service | int(9999) < 100 %}
+            Wartung fällig
+          {% else %}
+            OK
+          {% endif %}
 
 # ----------------------------------------
 # STATISTIK SENSOREN für Langzeit-Tracking
