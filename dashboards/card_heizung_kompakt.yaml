@@ -1,0 +1,65 @@
+# ===========================================
+# KOMPAKTE HEIZUNGS-KARTE für Übersicht
+# ===========================================
+#
+# Diese Karte ersetzt die überladene "Heating" Karte
+# Zeigt nur die wichtigsten Werte übersichtlich an
+#
+# INSTALLATION:
+# 1. Dashboard bearbeiten (Stift-Icon oben rechts)
+# 2. Alte "Heating" Karte löschen
+# 3. "+ Karte hinzufügen" → "Manuell"
+# 4. Diesen Code einfügen
+# ===========================================
+
+type: vertical-stack
+cards:
+  # Header mit Status
+  - type: horizontal-stack
+    cards:
+      - type: entity
+        entity: binary_sensor.ebusd_global_running
+        name: eBUS
+        icon: mdi:radiator
+      - type: entity
+        entity: sensor.ebusd_bai_modulation
+        name: Modulation
+        icon: mdi:percent
+
+  # Temperaturen als Glance
+  - type: glance
+    title: Temperaturen
+    show_state: true
+    columns: 4
+    entities:
+      - entity: sensor.ebusd_bai_flowtemp_temp
+        name: Vorlauf
+        icon: mdi:thermometer-high
+      - entity: sensor.ebusd_bai_returntemp_temp
+        name: Rücklauf
+        icon: mdi:thermometer-low
+      - entity: sensor.ebusd_bai_outsidetemp_temp
+        name: Außen
+        icon: mdi:thermometer
+      - entity: sensor.ebusd_bai_flowtempdesired
+        name: Soll
+        icon: mdi:target
+
+  # Wichtige Infos
+  - type: entities
+    title: System
+    show_header_toggle: false
+    entities:
+      - entity: sensor.ebusd_hc_heatingcurve
+        name: Heizkurve
+        icon: mdi:chart-bell-curve
+      - entity: sensor.heizung_brenner_laufzeit_heute
+        name: Brenner heute
+        icon: mdi:clock-outline
+      - entity: sensor.heizung_brenner_anteil_heute
+        name: Brenneranteil
+        icon: mdi:percent-circle
+      - type: divider
+      - entity: input_boolean.heizung_echtzeit_modus
+        name: Echtzeit-Modus
+        icon: mdi:speedometer

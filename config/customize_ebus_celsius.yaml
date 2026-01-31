@@ -1,0 +1,113 @@
+# ===========================================
+# EBUS SENSOR EINHEITEN-KORREKTUR
+# ===========================================
+#
+# Problem: Die eBUSd MQTT Integration setzt die Einheit
+# auf °F, obwohl die Werte bereits in Celsius sind.
+#
+# Lösung: Diese customize-Einträge korrigieren die Einheit.
+#
+# INSTALLATION:
+# 1. In configuration.yaml hinzufügen:
+#    homeassistant:
+#      customize: !include customize_ebus_celsius.yaml
+#
+# 2. Oder den Inhalt direkt in den customize-Block kopieren
+#
+# 3. Home Assistant neu starten
+# ===========================================
+
+# -----------------------------------------
+# HAUPTTEMPERATUREN (Wichtigste Sensoren)
+# -----------------------------------------
+
+# Vorlauftemperatur (Flow Temperature)
+sensor.ebusd_bai_flowtemp_temp:
+  unit_of_measurement: "°C"
+  friendly_name: "Vorlauf Temperatur"
+
+# Soll-Vorlauftemperatur
+sensor.ebusd_bai_flowtempdesired:
+  unit_of_measurement: "°C"
+  friendly_name: "Vorlauf Soll"
+
+# Maximale Vorlauftemperatur
+sensor.ebusd_bai_flowtempmax:
+  unit_of_measurement: "°C"
+  friendly_name: "Vorlauf Maximum"
+
+# Rücklauftemperatur (Return Temperature)
+sensor.ebusd_bai_returntemp_temp:
+  unit_of_measurement: "°C"
+  friendly_name: "Rücklauf Temperatur"
+
+# Außentemperatur
+sensor.ebusd_bai_outsidetemp_temp:
+  unit_of_measurement: "°C"
+  friendly_name: "Außentemperatur"
+
+# Externe Vorlauf-Solltemperatur Minimum
+sensor.ebusd_bai_extflowtempdesiredmin:
+  unit_of_measurement: "°C"
+  friendly_name: "Ext. Vorlauf Soll Min"
+
+# -----------------------------------------
+# SPEICHER/WARMWASSER TEMPERATUREN
+# -----------------------------------------
+
+# Speichertemperatur (falls vorhanden)
+sensor.ebusd_bai_storagetemp_temp:
+  unit_of_measurement: "°C"
+  friendly_name: "Speicher Temperatur"
+
+# Warmwasser-Solltemperatur
+sensor.ebusd_hwc_tempdesired:
+  unit_of_measurement: "°C"
+  friendly_name: "Warmwasser Soll"
+
+# -----------------------------------------
+# COUNTER START ATTEMPTS (sind auch als °F markiert)
+# Diese sind eigentlich Zähler, keine Temperaturen!
+# -----------------------------------------
+
+sensor.ebusd_bai_counterstartattempts1:
+  unit_of_measurement: ""
+  friendly_name: "Startversuche Zähler 1"
+  device_class: null
+
+sensor.ebusd_bai_counterstartattempts2:
+  unit_of_measurement: ""
+  friendly_name: "Startversuche Zähler 2"
+  device_class: null
+
+sensor.ebusd_bai_counterstartattempts3:
+  unit_of_measurement: ""
+  friendly_name: "Startversuche Zähler 3"
+  device_class: null
+
+sensor.ebusd_bai_counterstartattempts4:
+  unit_of_measurement: ""
+  friendly_name: "Startversuche Zähler 4"
+  device_class: null
+
+# -----------------------------------------
+# HEIZKREIS (HC) TEMPERATUREN
+# -----------------------------------------
+
+# Heizkreis Raumtemperatur Soll
+sensor.ebusd_hc_tempdesired:
+  unit_of_measurement: "°C"
+  friendly_name: "Raum Soll-Temperatur"
+
+# Aktuelle Raumtemperatur
+sensor.ebusd_hc_temproom:
+  unit_of_measurement: "°C"
+  friendly_name: "Raum Ist-Temperatur"
+
+# -----------------------------------------
+# DEAKTIVIERUNGSTEMPERATUREN
+# -----------------------------------------
+
+sensor.ebusd_bai_deactivationstemplimiter:
+  unit_of_measurement: "°C"
+  friendly_name: "Deaktivierungstemperatur Limiter"

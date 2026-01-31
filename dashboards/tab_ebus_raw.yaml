@@ -1,0 +1,139 @@
+# ===========================================
+# EBUS RAW DATA TAB für Heizung Profi Dashboard
+# ===========================================
+#
+# Zeigt ALLE eBUS Sensoren übersichtlich gruppiert
+# Für Debugging und detaillierte Analyse
+#
+# INSTALLATION:
+# 1. Heizung Profi Dashboard öffnen
+# 2. Bearbeiten → YAML-Editor
+# 3. Neuen Tab hinzufügen mit diesem Code
+# ===========================================
+
+title: eBUS Raw
+path: ebus-raw
+icon: mdi:database
+cards:
+  # -----------------------------------------
+  # VERBINDUNGSSTATUS
+  # -----------------------------------------
+  - type: entities
+    title: eBUS Verbindung
+    show_header_toggle: false
+    entities:
+      - entity: binary_sensor.ebusd_global_running
+        name: Daemon läuft
+      - entity: binary_sensor.ebusd_global_signal
+        name: Signal OK
+      - entity: sensor.ebusd_global_updatecheck
+        name: Update-Check
+      - entity: sensor.ebusd_ebus_device_updatecheck_device
+        name: Geräte-Update
+
+  # -----------------------------------------
+  # TEMPERATUREN (BAI = Brenner)
+  # -----------------------------------------
+  - type: entities
+    title: Temperaturen (BAI)
+    show_header_toggle: false
+    entities:
+      - entity: sensor.ebusd_bai_flowtemp_temp
+        name: Vorlauf IST
+        secondary_info: last-updated
+      - entity: sensor.ebusd_bai_flowtempdesired
+        name: Vorlauf SOLL
+      - entity: sensor.ebusd_bai_flowtempmax
+        name: Vorlauf MAX
+      - entity: sensor.ebusd_bai_returntemp_temp
+        name: Rücklauf
+      - entity: sensor.ebusd_bai_outsidetemp_temp
+        name: Außentemperatur
+      - entity: sensor.ebusd_bai_extflowtempdesiredmin
+        name: Ext. Vorlauf Min
+
+  # -----------------------------------------
+  # BETRIEBSDATEN
+  # -----------------------------------------
+  - type: entities
+    title: Betriebsdaten
+    show_header_toggle: false
+    entities:
+      - entity: sensor.ebusd_bai_modulation
+        name: Modulation
+      - entity: sensor.ebusd_bai_fanhours
+        name: Lüfter Stunden
+      - entity: sensor.ebusd_bai_fanstarts
+        name: Lüfter Starts
+      - entity: sensor.ebusd_bai_hchours
+        name: Heizkreis Stunden
+      - entity: sensor.ebusd_bai_hcstarts
+        name: Heizkreis Starts
+      - entity: sensor.ebusd_bai_hwchours
+        name: Warmwasser Stunden
+      - entity: sensor.ebusd_bai_hcpumpstarts
+        name: Pumpen Starts
+      - entity: sensor.ebusd_bai_hourstillservice
+        name: Stunden bis Service
+
+  # -----------------------------------------
+  # HEIZKREIS (HC)
+  # -----------------------------------------
+  - type: entities
+    title: Heizkreis (HC)
+    show_header_toggle: false
+    entities:
+      - entity: sensor.ebusd_hc_heatingcurve
+        name: Heizkurve
+      - entity: sensor.ebusd_hc_tempdesired
+        name: Raum SOLL
+      - entity: sensor.ebusd_hc_temproom
+        name: Raum IST
+      - entity: binary_sensor.ebusd_hc_status_onoff
+        name: Heizkreis Status
+      - entity: sensor.ebusd_bai_hcpumpmode
+        name: Pumpen-Modus
+
+  # -----------------------------------------
+  # COUNTER (Zähler)
+  # -----------------------------------------
+  - type: entities
+    title: Zähler & Counter
+    show_header_toggle: false
+    entities:
+      - entity: sensor.ebusd_bai_counterstartattempts1
+        name: Startversuche 1
+      - entity: sensor.ebusd_bai_counterstartattempts2
+        name: Startversuche 2
+      - entity: sensor.ebusd_bai_counterstartattempts3
+        name: Startversuche 3
+      - entity: sensor.ebusd_bai_counterstartattempts4
+        name: Startversuche 4
+      - entity: sensor.ebusd_bai_hcunderhundredstarts
+        name: Starts unter 100
+
+  # -----------------------------------------
+  # WARMWASSER (HWC)
+  # -----------------------------------------
+  - type: entities
+    title: Warmwasser (HWC)
+    show_header_toggle: false
+    entities:
+      - entity: binary_sensor.ebusd_hwc_status_onoff
+        name: Warmwasser Status
+      - entity: sensor.ebusd_hwc_tempdesired
+        name: WW SOLL
+      - entity: sensor.ebusd_bai_storagetemp_temp
+        name: Speicher Temp
+
+  # -----------------------------------------
+  # DISPLAY & MODI
+  # -----------------------------------------
+  - type: entities
+    title: Display & Modi
+    show_header_toggle: false
+    entities:
+      - entity: sensor.ebusd_bai_displaymode
+        name: Display-Modus
+      - entity: sensor.ebusd_bai_deactivationstemplimiter
+        name: Deaktivierungstemperatur
