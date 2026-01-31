@@ -6,6 +6,20 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 
 ---
 
+## [1.2.0] - 2026-01-31
+
+### Hinzugefügt
+- **Wetter-Vergleich** - Außentemperatur: eBUS vs Wetterdienst Marl
+  - `sensor.wetter_aussen_temperatur` - Temperatur vom Wetterdienst
+  - `sensor.heizung_aussen_differenz` - Abweichung eBUS vs Wetter
+- **Dashboard Erweiterung** - Vaillant & Marl Außentemperatur nebeneinander
+
+### Geändert
+- `statistics_sensors.yaml` v1.2.0 - Wetter-Vergleich Sensoren
+- `dashboard_statistik.yaml` - Außentemperatur Vergleichsboxen
+
+---
+
 ## [1.1.0] - 2026-01-31
 
 ### Gefixt
@@ -18,7 +32,7 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 - `sensor.heizung_aussen_celsius` - Außentemperatur in °C
 
 ### Geändert
-- `statistics_sensors.yaml` - Vereinfachte F→C Konvertierung ohne bedingte Logik
+- `statistics_sensors.yaml` v1.1.0 - Vereinfachte F→C Konvertierung
 - `INSTALLATION.md` - Korrigierte Dokumentation zur Temperatur-Problematik
 
 ---
@@ -75,14 +89,13 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 
 ## [Geplant]
 
-### Version 1.1.0
+### Version 1.3.0
 
 - [ ] Automatische Heizkurven-Anpassung basierend auf Außentemperatur
-- [ ] Wetter-Integration für vorausschauende Steuerung
 - [ ] Kosten-Berechnung basierend auf Gaspreis
 - [ ] Push-Benachrichtigungen für Wartungserinnerungen
 
-### Version 1.2.0
+### Version 1.4.0
 
 - [ ] Raumtemperatur-Integration (über weitere Sensoren)
 - [ ] Anwesenheits-basierte Steuerung
@@ -95,6 +108,7 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 
 | Version | Datum | Beschreibung |
 |---------|-------|--------------|
+| 1.2.0 | 2026-01-31 | Wetter-Vergleich (eBUS vs Wetterdienst) |
 | 1.1.0 | 2026-01-31 | F→C Konvertierung gefixt |
 | 1.0.0 | 2026-01-30 | Erste vollständige Version |
 
