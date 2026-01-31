@@ -6,6 +6,19 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 
 ---
 
+## [1.2.1] - 2026-01-31
+
+### Gefixt
+- **Weather API F→C Konvertierung** - weather.forecast_home liefert AUCH °F!
+  - Sensor zeigte 45°F statt 7°C für Marl
+  - Differenz-Berechnung zeigte -45°C (falsch) statt -7°C (korrekt)
+  - Formel angepasst: `((°F - 32) * 5/9)`
+
+### Geändert
+- `statistics_sensors.yaml` v1.2.1 - Weather F→C Fix
+
+---
+
 ## [1.2.0] - 2026-01-31
 
 ### Hinzugefügt
@@ -108,6 +121,7 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 
 | Version | Datum | Beschreibung |
 |---------|-------|--------------|
+| 1.2.1 | 2026-01-31 | Weather API F→C Konvertierung gefixt |
 | 1.2.0 | 2026-01-31 | Wetter-Vergleich (eBUS vs Wetterdienst) |
 | 1.1.0 | 2026-01-31 | F→C Konvertierung gefixt |
 | 1.0.0 | 2026-01-30 | Erste vollständige Version |

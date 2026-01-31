@@ -2,10 +2,11 @@
 # VAILLANT HEIZUNGS-STATISTIK SENSOREN
 # Erstellt von LISA für Murat
 # ===========================================
-# @version 1.2.0
+# @version 1.2.1
 # @date 2026-01-31
 #
 # CHANGELOG:
+# v1.2.1 - Weather API F→C Konvertierung gefixt (liefert auch °F!)
 # v1.2.0 - Wetter-Vergleich hinzugefügt (eBUS vs Wetterdienst)
 # v1.1.0 - F→C Konvertierung korrigiert (Werte IMMER in F)
 # v1.0.0 - Initial Release
@@ -14,7 +15,7 @@
 # 1. Diesen Inhalt zu configuration.yaml hinzufügen
 # 2. Home Assistant neu starten
 #
-# WICHTIG: eBUSd liefert Temperaturen in FAHRENHEIT!
+# WICHTIG: eBUSd UND weather.forecast_home liefern °F!
 # Diese Template-Sensoren konvertieren zu Celsius.
 # ===========================================
 
@@ -93,13 +94,14 @@ template:
       # ----------------------------------------
       # WETTER-VERGLEICH: eBUS vs Wetterdienst
       # ----------------------------------------
-      # Zeigt Außentemperatur vom Wetterdienst (weather.forecast_home)
+      # HINWEIS: weather.forecast_home liefert AUCH °F (nicht °C!)
+      # Daher hier auch F→C Konvertierung nötig
       - name: "Wetter Aussen Temperatur"
         unique_id: wetter_aussen_temperatur
         unit_of_measurement: "°C"
         state_class: measurement
         device_class: temperature
-        state: "{{ state_attr('weather.forecast_home', 'temperature') | float(0) }}"
+        state: "{{ ((state_attr('weather.forecast_home', 'temperature') | float(32) - 32) * 5/9) | round(1) }}"
         availability: "{{ states('weather.forecast_home') not in ['unknown', 'unavailable'] }}"
 
       # Differenz zwischen eBUS Sensor und Wetterdienst
@@ -109,7 +111,7 @@ template:
         state_class: measurement
         state: >
           {% set ebus = states('sensor.heizung_aussen_celsius') | float(0) %}
-          {% set wetter = state_attr('weather.forecast_home', 'temperature') | float(0) %}
+          {% set wetter = ((state_attr('weather.forecast_home', 'temperature') | float(32) - 32) * 5/9) | round(1) %}
           {{ (ebus - wetter) | round(1) }}
         availability: >
           {{ states('sensor.heizung_aussen_celsius') not in ['unknown', 'unavailable']
