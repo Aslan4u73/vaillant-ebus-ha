@@ -162,9 +162,20 @@ Dieses Projekt ist unter der MIT Lizenz veröffentlicht - siehe [LICENSE](LICENS
 
 ## Autor
 
-**Murat (Aslan4u)**
+<table>
+  <tr>
+    <td>
+      <strong>Murat Aslan</strong><br>
+      <em>AI Engineering Student & Smart Home Enthusiast</em><br><br>
+      Ich beschäftige mich mit AI, Automatisierung und Smart Home Lösungen.
+      Dieses Projekt ist Teil meiner Weiterbildung im Bereich AI Engineering,
+      wo ich praktische Erfahrungen mit IoT, Datenanalyse und Automatisierung sammle.
+    </td>
+  </tr>
+</table>
 
-- GitHub: [@Aslan4u73](https://github.com/Aslan4u73)
+🌐 **Website:** [aslan4u.de](https://www.aslan4u.de)
+💻 **GitHub:** [@Aslan4u73](https://github.com/Aslan4u73)
 
 ---
 
@@ -180,4 +191,11 @@ Bei Fragen oder Problemen:
 
 <p align="center">
   <b>Viel Erfolg beim Energiesparen!</b> 🌱💰
+</p>
+
+---
+
+<p align="center">
+  <i>Gefällt dir dieses Projekt? Gib einen ⭐ Star!</i><br>
+  <i>Fragen oder Verbesserungsvorschläge? Erstelle ein <a href="https://github.com/Aslan4u73/vaillant-ebus-ha/issues">Issue</a>!</i>
 </p>
