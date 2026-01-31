@@ -6,7 +6,24 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 
 ---
 
-## [1.0.0] - 2026-01-31
+## [1.1.0] - 2026-01-31
+
+### Gefixt
+- **Fahrenheit zu Celsius Konvertierung** - eBUSd liefert Werte in °F, nicht °C!
+  - Alte Methode (customize) änderte nur Label, nicht Werte → 104°C Anzeige (FALSCH)
+  - Neue Methode: Template-Sensoren mit echter Konvertierung: `(°F - 32) * 5/9`
+
+### Hinzugefügt
+- `sensor.heizung_ruecklauf_celsius` - Rücklauf in °C
+- `sensor.heizung_aussen_celsius` - Außentemperatur in °C
+
+### Geändert
+- `statistics_sensors.yaml` - Vereinfachte F→C Konvertierung ohne bedingte Logik
+- `INSTALLATION.md` - Korrigierte Dokumentation zur Temperatur-Problematik
+
+---
+
+## [1.0.0] - 2026-01-30
 
 ### Hinzugefügt
 
@@ -78,7 +95,8 @@ Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/).
 
 | Version | Datum | Beschreibung |
 |---------|-------|--------------|
-| 1.0.0 | 2026-01-31 | Erste vollständige Version |
+| 1.1.0 | 2026-01-31 | F→C Konvertierung gefixt |
+| 1.0.0 | 2026-01-30 | Erste vollständige Version |
 
 ---
 

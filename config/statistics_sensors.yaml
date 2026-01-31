@@ -2,34 +2,55 @@
 # VAILLANT HEIZUNGS-STATISTIK SENSOREN
 # Erstellt von LISA für Murat
 # ===========================================
+# @version 1.1.0
+# @date 2026-01-31
+#
+# CHANGELOG:
+# v1.1.0 - F→C Konvertierung korrigiert (Werte IMMER in F)
+# v1.0.0 - Initial Release
 #
 # INSTALLATION:
 # 1. Diesen Inhalt zu configuration.yaml hinzufügen
 # 2. Home Assistant neu starten
 #
-# Diese Sensoren speichern Langzeit-Statistiken für
-# Vorher-Nachher Vergleiche!
+# WICHTIG: eBUSd liefert Temperaturen in FAHRENHEIT!
+# Diese Template-Sensoren konvertieren zu Celsius.
 # ===========================================
 
 # ----------------------------------------
-# TEMPLATE SENSOREN für bessere Darstellung
+# TEMPLATE SENSOREN für Celsius-Konvertierung
+# ----------------------------------------
+# HINWEIS: eBUSd MQTT Integration liefert °F Werte!
+# Formel: (°F - 32) * 5/9 = °C
 # ----------------------------------------
 template:
   - sensor:
-      # Vorlauftemperatur in Celsius (falls in Fahrenheit)
+      # Vorlauftemperatur in Celsius
       - name: "Heizung Vorlauf Celsius"
         unique_id: heizung_vorlauf_celsius
         unit_of_measurement: "°C"
         state_class: measurement
         device_class: temperature
-        state: >
-          {% set temp_f = states('sensor.ebusd_bai_flowtemp_temp') | float(0) %}
-          {% if temp_f > 50 %}
-            {{ ((temp_f - 32) * 5/9) | round(1) }}
-          {% else %}
-            {{ temp_f | round(1) }}
-          {% endif %}
+        state: "{{ ((states('sensor.ebusd_bai_flowtemp_temp') | float(32) - 32) * 5/9) | round(1) }}"
         availability: "{{ states('sensor.ebusd_bai_flowtemp_temp') not in ['unknown', 'unavailable'] }}"
+
+      # Rücklauftemperatur in Celsius
+      - name: "Heizung Ruecklauf Celsius"
+        unique_id: heizung_ruecklauf_celsius
+        unit_of_measurement: "°C"
+        state_class: measurement
+        device_class: temperature
+        state: "{{ ((states('sensor.ebusd_bai_returntemp_temp') | float(32) - 32) * 5/9) | round(1) }}"
+        availability: "{{ states('sensor.ebusd_bai_returntemp_temp') not in ['unknown', 'unavailable'] }}"
+
+      # Außentemperatur in Celsius
+      - name: "Heizung Aussen Celsius"
+        unique_id: heizung_aussen_celsius
+        unit_of_measurement: "°C"
+        state_class: measurement
+        device_class: temperature
+        state: "{{ ((states('sensor.ebusd_bai_outsidetemp_temp') | float(32) - 32) * 5/9) | round(1) }}"
+        availability: "{{ states('sensor.ebusd_bai_outsidetemp_temp') not in ['unknown', 'unavailable'] }}"
 
       # Soll-Vorlauf in Celsius
       - name: "Heizung Soll-Vorlauf Celsius"
@@ -37,13 +58,7 @@ template:
         unit_of_measurement: "°C"
         state_class: measurement
         device_class: temperature
-        state: >
-          {% set temp_f = states('sensor.ebusd_bai_flowtempdesired') | float(0) %}
-          {% if temp_f > 50 %}
-            {{ ((temp_f - 32) * 5/9) | round(1) }}
-          {% else %}
-            {{ temp_f | round(1) }}
-          {% endif %}
+        state: "{{ ((states('sensor.ebusd_bai_flowtempdesired') | float(32) - 32) * 5/9) | round(1) }}"
         availability: "{{ states('sensor.ebusd_bai_flowtempdesired') not in ['unknown', 'unavailable'] }}"
 
       # Brenner-Laufzeit Berechnung (Differenz zu vorherigem Wert)

@@ -147,34 +147,29 @@ Wiederhole für:
 ### Problem: Temperaturen in Fahrenheit
 
 **Ursache:**
-Die eBUSd MQTT Integration setzt die Einheit fälschlicherweise auf °F, obwohl die Werte bereits in Celsius sind.
+Die eBUSd MQTT Integration liefert Temperaturwerte in **Fahrenheit** (°F)!
+Ein Wert von 104.6°F entspricht ca. 40°C (normale Vorlauftemperatur).
 
-**Lösung 1: Customize (Empfohlen)**
+**⚠️ WICHTIG:** Die `customize`-Methode ändert NUR das Label, NICHT den Wert!
+Das führt zu falschen Anzeigen wie "104°C" - was unrealistisch wäre.
 
-1. Kopiere `config/customize_ebus_celsius.yaml` nach `/config/`
-2. Füge in `configuration.yaml` hinzu:
+**Lösung: Template-Sensoren (EMPFOHLEN)**
+
+Die Template-Sensoren in `statistics_sensors.yaml` konvertieren korrekt von °F nach °C:
 
 ```yaml
-homeassistant:
-  customize: !include customize_ebus_celsius.yaml
+# Formel: (°F - 32) * 5/9 = °C
+state: "{{ ((states('sensor.ebusd_bai_flowtemp_temp') | float(32) - 32) * 5/9) | round(1) }}"
 ```
 
-3. Home Assistant neu starten
+**Verfügbare Celsius-Sensoren:**
+- `sensor.heizung_vorlauf_celsius` - Vorlauftemperatur
+- `sensor.heizung_ruecklauf_celsius` - Rücklauftemperatur
+- `sensor.heizung_aussen_celsius` - Außentemperatur
+- `sensor.heizung_soll_vorlauf_celsius` - Soll-Vorlauf
 
-**Lösung 2: Über die GUI**
-
-1. **Einstellungen → Geräte & Dienste → Entitäten**
-2. Suche nach `sensor.ebusd_bai_flowtemp_temp`
-3. Klicke auf den Sensor → Einstellungen (Zahnrad)
-4. Ändere "Angezeigte Einheit" auf `°C`
-5. Wiederhole für alle Temperatur-Sensoren
-
-**Lösung 3: Template-Sensoren**
-
-Die Template-Sensoren in `statistics_sensors.yaml` konvertieren automatisch falls nötig:
-
-- `sensor.heizung_vorlauf_celsius` zeigt immer Celsius
-- `sensor.ebusd_bai_flowtemp_temp` zeigt den Rohwert
+**Rohwerte (Fahrenheit):**
+- `sensor.ebusd_bai_flowtemp_temp` - Original eBUS Wert in °F
 
 ---
 
