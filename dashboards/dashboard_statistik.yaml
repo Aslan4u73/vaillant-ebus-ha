@@ -60,6 +60,21 @@ views:
               red: 60
             unit: "%"
 
+      # Außentemperatur Vergleich: eBUS vs Wetterdienst
+      - type: horizontal-stack
+        cards:
+          - type: entity
+            entity: sensor.heizung_aussen_celsius
+            name: "Vaillant"
+            icon: mdi:radiator
+            unit: "°C"
+          - type: entity
+            entity: weather.forecast_home
+            attribute: temperature
+            name: "Marl"
+            icon: mdi:weather-cloudy
+            unit: "°C"
+
       # Temperatur-Verlauf 24h
       - type: history-graph
         title: "🌡️ Temperaturverlauf (24 Stunden)"
