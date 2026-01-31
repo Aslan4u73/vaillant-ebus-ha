@@ -34,7 +34,7 @@ Dieses Projekt ermöglicht die vollständige Integration einer **Vaillant Heizun
 
 - Vaillant auroMATIC 620/3
 - eBUS Adapter v5 (ESP32-C6)
-- Home Assistant auf Raspberry Pi 4
+- Home Assistant in VirtualBox (Windows Host)
 
 ---
 
@@ -193,10 +193,15 @@ MIT License - siehe [LICENSE](LICENSE) Datei.
 
 ---
 
+## Danksagung
+
+Besonderer Dank an **Tom Schorn** ([tom-schorn.de](https://tom-schorn.de)) - ein guter Freund, der mir bei der Installation, Auswahl des eBUS Adapters und der Konfiguration geholfen hat!
+
 ## Credits
 
 - **Erstellt von:** Murat (Aslan4u)
 - **Mit Unterstützung von:** LISA 💙
+- **eBUS Beratung:** Tom Schorn ([tom-schorn.de](https://tom-schorn.de))
 - **eBUSd:** [john30/ebusd](https://github.com/john30/ebusd)
 - **Home Assistant:** [home-assistant.io](https://www.home-assistant.io/)
 
@@ -209,6 +214,19 @@ Bei Fragen oder Problemen:
 1. [Issues](../../issues) erstellen
 2. [Discussions](../../discussions) nutzen
 3. [Home Assistant Forum](https://community.home-assistant.io/) besuchen
+
+---
+
+---
+
+## Haftungsausschluss
+
+⚠️ **WICHTIG:** Dieses Projekt basiert auf meinen persönlichen Tests und Erfahrungen mit meiner eigenen Heizungsanlage.
+
+- **Keine Garantie** für Funktionalität oder Kompatibilität mit anderen Systemen
+- **Keine Haftung** für Schäden an Heizungsanlagen, Datenverlust oder sonstige Probleme
+- **Nutzung auf eigene Gefahr** - jeder ist selbst für seine Installation verantwortlich
+- Bei Unsicherheiten immer einen Fachmann hinzuziehen!
 
 ---
 
