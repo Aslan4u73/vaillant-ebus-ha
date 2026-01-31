@@ -1,44 +1,60 @@
 # vaillant-ebus-ha
 
-**Vaillant Heizungssteuerung mit Home Assistant via eBUS**
+> Vaillant Heizungssteuerung mit Home Assistant via eBUS-Protokoll
 
-[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.1+-blue.svg)](https://www.home-assistant.io/)
-[![eBUSd](https://img.shields.io/badge/eBUSd-23.3+-green.svg)](https://github.com/john30/ebusd)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.1+-41BDF5?logo=home-assistant&logoColor=white)](https://www.home-assistant.io/)
+[![eBUSd](https://img.shields.io/badge/eBUSd-23.3+-green?logo=github)](https://github.com/john30/ebusd)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/Aslan4u73/vaillant-ebus-ha?style=social)](https://github.com/Aslan4u73/vaillant-ebus-ha)
+
+---
+
+## Disclaimer / Haftungsausschluss
+
+> **⚠️ WICHTIGER HINWEIS**
+>
+> Dieses Projekt dokumentiert meine **persönlichen Erfahrungen** mit meiner eigenen Heizungsanlage. Es wird **keine Garantie** für Funktionalität, Sicherheit oder Kompatibilität mit anderen Systemen übernommen.
+>
+> - Die Nutzung erfolgt **auf eigene Gefahr**
+> - **Keine Haftung** für Schäden an Heizungsanlagen, Datenverlust oder Folgeschäden
+> - Bei Unsicherheiten einen **Fachbetrieb** hinzuziehen
+> - Änderungen an Heizungsanlagen können die **Garantie** beeinflussen
 
 ---
 
 ## Überblick
 
-Dieses Projekt ermöglicht die vollständige Integration einer **Vaillant Heizungsanlage** (auroMATIC 620/3) in Home Assistant über das eBUS-Protokoll.
+Dieses Projekt ermöglicht die Integration einer **Vaillant Heizungsanlage** in Home Assistant über das eBUS-Protokoll. Es enthält fertige Dashboards, Sensoren und Automationen für Monitoring und Optimierung.
 
 ### Features
 
-- **Echtzeit-Monitoring** - Alle Heizungsdaten live im Dashboard
-- **Statistik-Tracking** - Vorher/Nachher Vergleich für Optimierungen
-- **Echtzeit-Modus** - Schnelles Polling (5s) für Live-Diagnose
-- **Energie-Analyse** - Verbrauchsübersicht und Effizienz-Bewertung
-- **Profi-Dashboard** - Alle Werte auf einen Blick
+| Feature | Beschreibung |
+|---------|--------------|
+| 📊 **Echtzeit-Monitoring** | Alle Heizungsdaten live im Dashboard |
+| 📈 **Statistik-Tracking** | Vorher/Nachher Vergleich für Optimierungen |
+| ⚡ **Echtzeit-Modus** | Schnelles Polling (5s) für Live-Diagnose |
+| 💰 **Energie-Analyse** | Verbrauchsübersicht und Effizienz-Bewertung |
+| 🎛️ **Profi-Dashboard** | ~460 Sensoren auf einen Blick |
 
 ---
 
-## Hardware-Anforderungen
+## Voraussetzungen
 
-| Komponente | Beschreibung | Link |
-|------------|--------------|------|
-| **Vaillant Heizung** | auroMATIC 620/3 oder kompatibel | - |
-| **eBUS Adapter** | ESP32 oder Raspberry Pi basiert | [eBUS Adapter](https://ebusd.eu/) |
-| **Home Assistant** | Version 2024.1 oder neuer | [home-assistant.io](https://www.home-assistant.io/) |
+### Hardware
 
-### Getestete Hardware
+| Komponente | Beschreibung |
+|------------|--------------|
+| Vaillant Heizung | auroMATIC 620/3 oder kompatibel |
+| eBUS Adapter | ESP32-basiert ([ebusd.eu](https://ebusd.eu/)) |
+| Home Assistant | Version 2024.1+ |
 
-- Vaillant auroMATIC 620/3
-- eBUS Adapter v5 (ESP32-C6)
-- Home Assistant in VirtualBox (Windows Host)
+### Getestete Umgebung
 
----
+- **Heizung:** Vaillant auroMATIC 620/3
+- **Adapter:** eBUS Adapter v5 (ESP32-C6)
+- **Home Assistant:** VirtualBox auf Windows
 
-## Software-Anforderungen
+### Software
 
 - Home Assistant Core 2024.1+
 - eBUSd Add-on (MQTT-Modus)
@@ -47,39 +63,20 @@ Dieses Projekt ermöglicht die vollständige Integration einer **Vaillant Heizun
 
 ---
 
-## Schnellstart
+## Installation
 
-### 1. eBUS Adapter einrichten
+Eine detaillierte Schritt-für-Schritt Anleitung findest du in **[INSTALLATION.md](INSTALLATION.md)**.
 
-```bash
-# eBUS Adapter IP (Beispiel)
-192.168.1.37:9999
-```
-
-### 2. eBUSd Add-on installieren
-
-1. Add-on Store öffnen
-2. "eBUSd" suchen und installieren
-3. Konfiguration anpassen (siehe `ebusd_config.yaml`)
-
-### 3. MQTT Integration einrichten
-
-1. Einstellungen → Geräte & Dienste → Integration hinzufügen
-2. MQTT auswählen
-3. Broker: `localhost` oder IP des MQTT-Servers
-
-### 4. Konfiguration kopieren
+### Kurzanleitung
 
 ```bash
-# Sensoren und Automationen zu configuration.yaml hinzufügen
-# Siehe: config/configuration_heizung.yaml
+# 1. Repository klonen
+git clone https://github.com/Aslan4u73/vaillant-ebus-ha.git
+
+# 2. Konfigurationen nach Home Assistant kopieren
+# 3. Dashboards importieren
+# 4. Home Assistant neu starten
 ```
-
-### 5. Dashboards importieren
-
-1. Einstellungen → Dashboards → + Dashboard hinzufügen
-2. Raw-Editor öffnen
-3. Inhalt aus `dashboards/` Ordner einfügen
 
 ---
 
@@ -87,123 +84,87 @@ Dieses Projekt ermöglicht die vollständige Integration einer **Vaillant Heizun
 
 ```
 vaillant-ebus-ha/
-├── README.md                    # Diese Datei
-├── INSTALLATION.md              # Detaillierte Installationsanleitung
-├── CHANGELOG.md                 # Versionshistorie
-├── LICENSE                      # MIT Lizenz
-│
 ├── config/                      # Home Assistant Konfiguration
-│   ├── statistics_sensors.yaml  # Statistik-Sensoren + F→C Konvertierung
-│   ├── echtzeit_modus.yaml      # Echtzeit-Polling Toggle
-│   └── automations_heizung.yaml # Heizungs-Automationen
+│   ├── statistics_sensors.yaml  # Statistik-Sensoren
+│   ├── echtzeit_modus.yaml      # Echtzeit-Polling
+│   └── automations_heizung.yaml # Automationen
 │
 ├── dashboards/                  # Lovelace Dashboards
 │   ├── dashboard_heizung.yaml   # Basis-Dashboard
-│   ├── dashboard_profi.yaml     # Profi-Dashboard (alle Daten)
+│   ├── dashboard_profi.yaml     # Profi-Dashboard
 │   └── dashboard_statistik.yaml # Statistik-Dashboard
 │
 ├── docs/                        # Dokumentation
-│   ├── SENSOREN.md              # Alle verfügbaren Sensoren
-│   ├── HEIZKURVE.md             # Heizkurven-Optimierung
+│   ├── SENSOREN.md              # Sensor-Referenz
+│   ├── HEIZKURVE.md             # Optimierung
 │   └── TROUBLESHOOTING.md       # Problemlösung
 │
-└── scripts/                     # Hilfs-Skripte
-    └── check_ebus.sh            # eBUS Verbindungstest
+├── INSTALLATION.md              # Installationsanleitung
+├── CHANGELOG.md                 # Versionshistorie
+└── LICENSE                      # MIT Lizenz
 ```
 
 ---
 
-## Wichtige Sensoren
+## Dokumentation
 
-### Temperaturen
-
-| Entity ID | Beschreibung |
-|-----------|--------------|
-| `sensor.ebusd_bai_flowtemp_temp` | Vorlauftemperatur |
-| `sensor.ebusd_bai_returntemp_temp` | Rücklauftemperatur |
-| `sensor.ebusd_broadcast_outsidetemp` | Außentemperatur |
-| `sensor.ebusd_hwc_hwctemp_temp` | Warmwasser-Temperatur |
-
-### Steuerung
-
-| Entity ID | Beschreibung |
-|-----------|--------------|
-| `sensor.ebusd_hc_heatingcurve` | Heizkurve (0.5 - 2.5) |
-| `sensor.ebusd_bai_setmode_hcmode` | Heizmodus |
-| `sensor.ebusd_bai_status01_pumpstate` | Pumpen-Status |
-
-### Statistik
-
-| Entity ID | Beschreibung |
-|-----------|--------------|
-| `sensor.ebusd_bai_fanhours` | Brenner-Laufzeit (Stunden) |
-| `sensor.ebusd_bai_hcstarts` | Heizungs-Starts (Anzahl) |
-| `sensor.ebusd_bai_prenergycounthc1` | Energie-Zähler Heizung |
+| Dokument | Beschreibung |
+|----------|--------------|
+| [INSTALLATION.md](INSTALLATION.md) | Schritt-für-Schritt Anleitung |
+| [docs/SENSOREN.md](docs/SENSOREN.md) | Alle ~460 verfügbaren Sensoren |
+| [docs/HEIZKURVE.md](docs/HEIZKURVE.md) | Heizkurven-Optimierung |
+| [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Problemlösung |
+| [CHANGELOG.md](CHANGELOG.md) | Versionshistorie |
 
 ---
 
 ## Heizkurven-Optimierung
 
-### Empfohlene Werte
+Mit diesem Projekt kannst du deine Heizkurve optimieren und **20-30% Energie sparen**.
 
-| Gebäudetyp | Heizkurve |
-|------------|-----------|
+| Gebäudetyp | Empfohlene Heizkurve |
+|------------|----------------------|
 | Gut gedämmt (Neubau) | 0.6 - 0.8 |
 | Normal gedämmt | 0.8 - 1.0 |
-| Schlecht gedämmt (Altbau) | 1.2 - 1.5 |
+| Schlecht gedämmt | 1.2 - 1.5 |
 
-### Vorher/Nachher Vergleich
-
-Mit den Statistik-Sensoren kannst du den Effekt einer Heizkurven-Änderung messen:
-
-1. **Baseline sammeln** (2-3 Tage mit alter Einstellung)
-2. **Datum markieren** im Dashboard
-3. **Heizkurve ändern**
-4. **Vergleichen** nach weiteren 2-3 Tagen
-
-**Erwartete Ersparnis bei 10°C niedrigerer Vorlauftemperatur: ~20-30%!**
+Mehr Details: **[docs/HEIZKURVE.md](docs/HEIZKURVE.md)**
 
 ---
 
-## Screenshots
+## Contributing
 
-### Profi-Dashboard
-*Alle Heizungsdaten auf einen Blick*
-
-### Statistik-Dashboard
-*Vorher/Nachher Vergleich und Langzeit-Trends*
-
----
-
-## Mitwirken
-
-Beiträge sind willkommen! Bitte:
+Beiträge sind willkommen!
 
 1. Fork erstellen
-2. Feature-Branch anlegen (`git checkout -b feature/AmazingFeature`)
-3. Änderungen committen (`git commit -m 'Add AmazingFeature'`)
-4. Branch pushen (`git push origin feature/AmazingFeature`)
+2. Feature-Branch anlegen (`git checkout -b feature/NeuesFeature`)
+3. Änderungen committen (`git commit -m 'feat: Neues Feature'`)
+4. Branch pushen (`git push origin feature/NeuesFeature`)
 5. Pull Request erstellen
-
----
-
-## Lizenz
-
-MIT License - siehe [LICENSE](LICENSE) Datei.
 
 ---
 
 ## Danksagung
 
-Besonderer Dank an **Tom Schorn** ([tom-schorn.de](https://tom-schorn.de)) - ein guter Freund, der mir bei der Installation, Auswahl des eBUS Adapters und der Konfiguration geholfen hat!
+Besonderer Dank an:
 
-## Credits
+- **[Tom Schorn](https://tom-schorn.de)** - Für die Unterstützung bei Installation, Auswahl des eBUS Adapters und Konfiguration
+- **[john30/ebusd](https://github.com/john30/ebusd)** - Für das großartige eBUSd Projekt
+- **[Home Assistant](https://www.home-assistant.io/)** - Für die beste Smart Home Platform
 
-- **Erstellt von:** Murat (Aslan4u)
-- **Mit Unterstützung von:** LISA 💙
-- **eBUS Beratung:** Tom Schorn ([tom-schorn.de](https://tom-schorn.de))
-- **eBUSd:** [john30/ebusd](https://github.com/john30/ebusd)
-- **Home Assistant:** [home-assistant.io](https://www.home-assistant.io/)
+---
+
+## Lizenz
+
+Dieses Projekt ist unter der MIT Lizenz veröffentlicht - siehe [LICENSE](LICENSE) für Details.
+
+---
+
+## Autor
+
+**Murat (Aslan4u)**
+
+- GitHub: [@Aslan4u73](https://github.com/Aslan4u73)
 
 ---
 
@@ -211,23 +172,12 @@ Besonderer Dank an **Tom Schorn** ([tom-schorn.de](https://tom-schorn.de)) - ein
 
 Bei Fragen oder Problemen:
 
-1. [Issues](../../issues) erstellen
-2. [Discussions](../../discussions) nutzen
-3. [Home Assistant Forum](https://community.home-assistant.io/) besuchen
+- 📝 [Issue erstellen](https://github.com/Aslan4u73/vaillant-ebus-ha/issues)
+- 💬 [Discussions](https://github.com/Aslan4u73/vaillant-ebus-ha/discussions)
+- 🏠 [Home Assistant Forum](https://community.home-assistant.io/)
 
 ---
 
----
-
-## Haftungsausschluss
-
-⚠️ **WICHTIG:** Dieses Projekt basiert auf meinen persönlichen Tests und Erfahrungen mit meiner eigenen Heizungsanlage.
-
-- **Keine Garantie** für Funktionalität oder Kompatibilität mit anderen Systemen
-- **Keine Haftung** für Schäden an Heizungsanlagen, Datenverlust oder sonstige Probleme
-- **Nutzung auf eigene Gefahr** - jeder ist selbst für seine Installation verantwortlich
-- Bei Unsicherheiten immer einen Fachmann hinzuziehen!
-
----
-
-**Viel Erfolg beim Energiesparen!** 🌱💰
+<p align="center">
+  <b>Viel Erfolg beim Energiesparen!</b> 🌱💰
+</p>
