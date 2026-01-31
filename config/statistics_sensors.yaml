@@ -1,0 +1,205 @@
+# ===========================================
+# VAILLANT HEIZUNGS-STATISTIK SENSOREN
+# Erstellt von LISA für Murat
+# ===========================================
+#
+# INSTALLATION:
+# 1. Diesen Inhalt zu configuration.yaml hinzufügen
+# 2. Home Assistant neu starten
+#
+# Diese Sensoren speichern Langzeit-Statistiken für
+# Vorher-Nachher Vergleiche!
+# ===========================================
+
+# ----------------------------------------
+# TEMPLATE SENSOREN für bessere Darstellung
+# ----------------------------------------
+template:
+  - sensor:
+      # Vorlauftemperatur in Celsius (falls in Fahrenheit)
+      - name: "Heizung Vorlauf Celsius"
+        unique_id: heizung_vorlauf_celsius
+        unit_of_measurement: "°C"
+        state_class: measurement
+        device_class: temperature
+        state: >
+          {% set temp_f = states('sensor.ebusd_bai_flowtemp_temp') | float(0) %}
+          {% if temp_f > 50 %}
+            {{ ((temp_f - 32) * 5/9) | round(1) }}
+          {% else %}
+            {{ temp_f | round(1) }}
+          {% endif %}
+        availability: "{{ states('sensor.ebusd_bai_flowtemp_temp') not in ['unknown', 'unavailable'] }}"
+
+      # Soll-Vorlauf in Celsius
+      - name: "Heizung Soll-Vorlauf Celsius"
+        unique_id: heizung_soll_vorlauf_celsius
+        unit_of_measurement: "°C"
+        state_class: measurement
+        device_class: temperature
+        state: >
+          {% set temp_f = states('sensor.ebusd_bai_flowtempdesired') | float(0) %}
+          {% if temp_f > 50 %}
+            {{ ((temp_f - 32) * 5/9) | round(1) }}
+          {% else %}
+            {{ temp_f | round(1) }}
+          {% endif %}
+        availability: "{{ states('sensor.ebusd_bai_flowtempdesired') not in ['unknown', 'unavailable'] }}"
+
+      # Brenner-Laufzeit Berechnung (Differenz zu vorherigem Wert)
+      - name: "Heizung Brenner Aktiv"
+        unique_id: heizung_brenner_aktiv
+        state: >
+          {% set vorlauf = states('sensor.ebusd_bai_flowtemp_temp') | float(0) %}
+          {% set soll = states('sensor.ebusd_bai_flowtempdesired') | float(0) %}
+          {% if vorlauf > 100 and soll > 50 %}
+            on
+          {% else %}
+            off
+          {% endif %}
+
+      # Heizkurve als Zahl
+      - name: "Heizung Heizkurve"
+        unique_id: heizung_heizkurve
+        unit_of_measurement: ""
+        state_class: measurement
+        state: "{{ states('sensor.ebusd_hc_heatingcurve') | float(0) }}"
+
+      # Tägliche Durchschnitts-Vorlauftemperatur
+      - name: "Heizung Effizienz Index"
+        unique_id: heizung_effizienz_index
+        unit_of_measurement: ""
+        state: >
+          {% set vorlauf = states('sensor.heizung_vorlauf_celsius') | float(40) %}
+          {% set heizkurve = states('sensor.ebusd_hc_heatingcurve') | float(1.3) %}
+          {{ (100 - (vorlauf * heizkurve / 0.8)) | round(0) }}
+
+# ----------------------------------------
+# STATISTIK SENSOREN für Langzeit-Tracking
+# ----------------------------------------
+sensor:
+  # Durchschnittliche Vorlauftemperatur (24h)
+  - platform: statistics
+    name: "Heizung Vorlauf 24h Durchschnitt"
+    unique_id: heizung_vorlauf_24h_avg
+    entity_id: sensor.heizung_vorlauf_celsius
+    state_characteristic: mean
+    max_age:
+      hours: 24
+
+  # Maximum Vorlauftemperatur (24h)
+  - platform: statistics
+    name: "Heizung Vorlauf 24h Maximum"
+    unique_id: heizung_vorlauf_24h_max
+    entity_id: sensor.heizung_vorlauf_celsius
+    state_characteristic: value_max
+    max_age:
+      hours: 24
+
+  # Minimum Vorlauftemperatur (24h)
+  - platform: statistics
+    name: "Heizung Vorlauf 24h Minimum"
+    unique_id: heizung_vorlauf_24h_min
+    entity_id: sensor.heizung_vorlauf_celsius
+    state_characteristic: value_min
+    max_age:
+      hours: 24
+
+  # Standardabweichung (zeigt Stabilität)
+  - platform: statistics
+    name: "Heizung Vorlauf Stabilität"
+    unique_id: heizung_vorlauf_stability
+    entity_id: sensor.heizung_vorlauf_celsius
+    state_characteristic: standard_deviation
+    max_age:
+      hours: 24
+
+# ----------------------------------------
+# HISTORY STATS für Brenner-Laufzeit
+# ----------------------------------------
+  - platform: history_stats
+    name: "Heizung Brenner Laufzeit Heute"
+    unique_id: heizung_brenner_laufzeit_heute
+    entity_id: sensor.heizung_brenner_aktiv
+    state: "on"
+    type: time
+    start: "{{ today_at('00:00') }}"
+    end: "{{ now() }}"
+
+  - platform: history_stats
+    name: "Heizung Brenner Laufzeit Gestern"
+    unique_id: heizung_brenner_laufzeit_gestern
+    entity_id: sensor.heizung_brenner_aktiv
+    state: "on"
+    type: time
+    start: "{{ today_at('00:00') - timedelta(days=1) }}"
+    end: "{{ today_at('00:00') }}"
+
+  - platform: history_stats
+    name: "Heizung Brenner Anteil Heute"
+    unique_id: heizung_brenner_anteil_heute
+    entity_id: sensor.heizung_brenner_aktiv
+    state: "on"
+    type: ratio
+    start: "{{ today_at('00:00') }}"
+    end: "{{ now() }}"
+
+# ----------------------------------------
+# UTILITY METER für tägliche/wöchentliche Zählung
+# ----------------------------------------
+utility_meter:
+  heizung_laufzeit_taeglich:
+    source: sensor.ebusd_bai_fanhours
+    name: "Heizung Laufzeit Täglich"
+    cycle: daily
+
+  heizung_laufzeit_woechentlich:
+    source: sensor.ebusd_bai_fanhours
+    name: "Heizung Laufzeit Wöchentlich"
+    cycle: weekly
+
+  heizung_laufzeit_monatlich:
+    source: sensor.ebusd_bai_fanhours
+    name: "Heizung Laufzeit Monatlich"
+    cycle: monthly
+
+  heizung_starts_taeglich:
+    source: sensor.ebusd_bai_hcstarts
+    name: "Heizung Starts Täglich"
+    cycle: daily
+
+  heizung_starts_woechentlich:
+    source: sensor.ebusd_bai_hcstarts
+    name: "Heizung Starts Wöchentlich"
+    cycle: weekly
+
+# ----------------------------------------
+# INPUT NUMBER für Markierung der Optimierung
+# ----------------------------------------
+input_datetime:
+  heizung_optimierung_start:
+    name: "Heizung Optimierung Startdatum"
+    has_date: true
+    has_time: true
+
+input_number:
+  heizung_alte_heizkurve:
+    name: "Heizung Alte Heizkurve (vor Optimierung)"
+    min: 0.5
+    max: 2.5
+    step: 0.1
+    mode: box
+    unit_of_measurement: ""
+
+  heizung_neue_heizkurve:
+    name: "Heizung Neue Heizkurve (nach Optimierung)"
+    min: 0.5
+    max: 2.5
+    step: 0.1
+    mode: box
+    unit_of_measurement: ""
+
+input_text:
+  heizung_optimierung_notiz:
+    name: "Heizung Optimierung Notiz"
+    max: 255

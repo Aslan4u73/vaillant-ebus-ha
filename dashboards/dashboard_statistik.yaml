@@ -1,0 +1,291 @@
+# ===========================================
+# VAILLANT HEIZUNGS-STATISTIK DASHBOARD
+# Erstellt von LISA für Murat
+# ===========================================
+#
+# Dieses Dashboard zeigt:
+# - Vorher/Nachher Vergleich
+# - Langzeit-Grafiken
+# - Effizienz-Analyse
+#
+# INSTALLATION: Wie dashboard_heizung.yaml
+# ===========================================
+
+title: Heizung Statistik
+views:
+  # ========================================
+  # ANSICHT 1: LIVE ÜBERSICHT
+  # ========================================
+  - title: Live
+    path: live
+    icon: mdi:chart-line
+    cards:
+      - type: markdown
+        content: |
+          # 📊 Heizungs-Statistik Live
+          **Datensammlung aktiv seit Installation**
+
+      # Aktuelle Werte Gauges
+      - type: horizontal-stack
+        cards:
+          - type: gauge
+            entity: sensor.heizung_vorlauf_celsius
+            name: Vorlauf
+            min: 20
+            max: 80
+            severity:
+              green: 30
+              yellow: 50
+              red: 65
+            unit: "°C"
+
+          - type: gauge
+            entity: sensor.ebusd_hc_heatingcurve
+            name: Heizkurve
+            min: 0.5
+            max: 2.0
+            severity:
+              green: 0.8
+              yellow: 1.2
+              red: 1.5
+
+          - type: gauge
+            entity: sensor.heizung_brenner_anteil_heute
+            name: Brenner %
+            min: 0
+            max: 100
+            severity:
+              green: 20
+              yellow: 40
+              red: 60
+            unit: "%"
+
+      # Temperatur-Verlauf 24h
+      - type: history-graph
+        title: "🌡️ Temperaturverlauf (24 Stunden)"
+        hours_to_show: 24
+        refresh_interval: 300
+        entities:
+          - entity: sensor.heizung_vorlauf_celsius
+            name: Vorlauf
+          - entity: sensor.heizung_soll_vorlauf_celsius
+            name: Soll-Vorlauf
+
+      # Statistik-Karten
+      - type: horizontal-stack
+        cards:
+          - type: statistic
+            entity: sensor.heizung_vorlauf_celsius
+            period:
+              calendar:
+                period: day
+            stat_type: mean
+            name: "Ø Vorlauf Heute"
+
+          - type: statistic
+            entity: sensor.heizung_vorlauf_celsius
+            period:
+              calendar:
+                period: day
+            stat_type: max
+            name: "Max Vorlauf Heute"
+
+          - type: statistic
+            entity: sensor.heizung_vorlauf_celsius
+            period:
+              calendar:
+                period: day
+            stat_type: min
+            name: "Min Vorlauf Heute"
+
+  # ========================================
+  # ANSICHT 2: VERGLEICH VORHER/NACHHER
+  # ========================================
+  - title: Vergleich
+    path: vergleich
+    icon: mdi:compare
+    cards:
+      - type: markdown
+        content: |
+          # 📈 Vorher/Nachher Vergleich
+
+          **So funktioniert's:**
+          1. Lass die Heizung 2-3 Tage mit aktuellen Einstellungen laufen
+          2. Notiere das Datum unten als "Optimierung Start"
+          3. Ändere die Heizkurve
+          4. Vergleiche die Grafiken!
+
+      # Markierung für Optimierungs-Zeitpunkt
+      - type: entities
+        title: "⚙️ Optimierungs-Markierung"
+        entities:
+          - entity: input_datetime.heizung_optimierung_start
+            name: "Optimierung gestartet am"
+          - entity: input_number.heizung_alte_heizkurve
+            name: "Alte Heizkurve"
+          - entity: input_number.heizung_neue_heizkurve
+            name: "Neue Heizkurve"
+          - entity: input_text.heizung_optimierung_notiz
+            name: "Notizen"
+
+      # 7-Tage Vergleich
+      - type: history-graph
+        title: "📊 Vorlauf-Temperatur (7 Tage)"
+        hours_to_show: 168
+        refresh_interval: 600
+        entities:
+          - entity: sensor.heizung_vorlauf_celsius
+            name: Vorlauf °C
+
+      # Heizkurve über Zeit
+      - type: history-graph
+        title: "📉 Heizkurve über Zeit"
+        hours_to_show: 168
+        entities:
+          - entity: sensor.ebusd_hc_heatingcurve
+            name: Heizkurve
+
+  # ========================================
+  # ANSICHT 3: LAUFZEIT-ANALYSE
+  # ========================================
+  - title: Laufzeit
+    path: laufzeit
+    icon: mdi:timer-outline
+    cards:
+      - type: markdown
+        content: |
+          # ⏱️ Brenner-Laufzeit Analyse
+
+          **Weniger Laufzeit = Weniger Gasverbrauch = Weniger Kosten!**
+
+      - type: horizontal-stack
+        cards:
+          - type: entity
+            entity: sensor.heizung_brenner_laufzeit_heute
+            name: "Heute"
+            icon: mdi:clock-today
+
+          - type: entity
+            entity: sensor.heizung_brenner_laufzeit_gestern
+            name: "Gestern"
+            icon: mdi:clock-outline
+
+          - type: entity
+            entity: sensor.heizung_brenner_anteil_heute
+            name: "Anteil %"
+            icon: mdi:percent
+
+      # Laufzeit pro Tag (Balkendiagramm)
+      - type: statistics-graph
+        title: "📊 Tägliche Durchschnitts-Vorlauftemperatur"
+        entities:
+          - entity: sensor.heizung_vorlauf_celsius
+        stat_types:
+          - mean
+          - max
+          - min
+        period:
+          calendar:
+            period: day
+        days_to_show: 14
+
+      # Starts pro Tag
+      - type: entities
+        title: "🔄 Heizungs-Starts"
+        entities:
+          - entity: sensor.heizung_starts_taeglich
+            name: "Starts Heute"
+          - entity: sensor.heizung_starts_woechentlich
+            name: "Starts diese Woche"
+          - entity: sensor.ebusd_bai_hcstarts
+            name: "Starts Gesamt"
+
+  # ========================================
+  # ANSICHT 4: LANGZEIT (Wochen/Monate)
+  # ========================================
+  - title: Langzeit
+    path: langzeit
+    icon: mdi:calendar-range
+    cards:
+      - type: markdown
+        content: |
+          # 📅 Langzeit-Statistik
+
+          Hier siehst du Trends über Wochen und Monate.
+
+      # Wöchentliche Statistik
+      - type: statistics-graph
+        title: "📊 Wöchentliche Vorlauf-Statistik"
+        entities:
+          - entity: sensor.heizung_vorlauf_celsius
+        stat_types:
+          - mean
+        period:
+          calendar:
+            period: week
+        days_to_show: 56
+
+      # Monatliche Laufzeit
+      - type: entities
+        title: "📈 Laufzeit-Zähler"
+        entities:
+          - entity: sensor.heizung_laufzeit_taeglich
+            name: "Heute (Stunden)"
+          - entity: sensor.heizung_laufzeit_woechentlich
+            name: "Diese Woche (Stunden)"
+          - entity: sensor.heizung_laufzeit_monatlich
+            name: "Dieser Monat (Stunden)"
+          - entity: sensor.ebusd_bai_fanhours
+            name: "Gesamt (Stunden)"
+
+  # ========================================
+  # ANSICHT 5: EFFIZIENZ-BEWERTUNG
+  # ========================================
+  - title: Effizienz
+    path: effizienz
+    icon: mdi:leaf
+    cards:
+      - type: markdown
+        content: |
+          # 🌱 Effizienz-Bewertung
+
+          **Ziel:** Niedrige Vorlauftemperatur bei gleicher Raumwärme!
+
+      - type: horizontal-stack
+        cards:
+          - type: gauge
+            entity: sensor.heizung_vorlauf_24h_durchschnitt
+            name: "Ø Vorlauf 24h"
+            min: 25
+            max: 70
+            severity:
+              green: 35
+              yellow: 45
+              red: 55
+            needle: true
+
+          - type: gauge
+            entity: sensor.heizung_vorlauf_stabilitaet
+            name: "Stabilität"
+            min: 0
+            max: 15
+            severity:
+              green: 3
+              yellow: 7
+              red: 10
+            needle: true
+
+      # Empfehlungs-Karte
+      - type: markdown
+        content: |
+          ## 💡 Empfehlungen
+
+          | Messwert | Optimal | Dein Wert | Status |
+          |----------|---------|-----------|--------|
+          | Heizkurve | 0.8-1.0 | {{ states('sensor.ebusd_hc_heatingcurve') }} | {% if states('sensor.ebusd_hc_heatingcurve')|float <= 1.0 %}✅{% elif states('sensor.ebusd_hc_heatingcurve')|float <= 1.3 %}⚠️{% else %}❌{% endif %} |
+          | Ø Vorlauf | 35-45°C | {{ states('sensor.heizung_vorlauf_24h_durchschnitt')|round(1) }}°C | {% if states('sensor.heizung_vorlauf_24h_durchschnitt')|float <= 45 %}✅{% elif states('sensor.heizung_vorlauf_24h_durchschnitt')|float <= 55 %}⚠️{% else %}❌{% endif %} |
+          | Brenner % | <30% | {{ states('sensor.heizung_brenner_anteil_heute')|round(0) }}% | {% if states('sensor.heizung_brenner_anteil_heute')|float <= 30 %}✅{% elif states('sensor.heizung_brenner_anteil_heute')|float <= 50 %}⚠️{% else %}❌{% endif %} |
+
+          ---
+
+          **Legende:** ✅ Optimal | ⚠️ Verbesserbar | ❌ Zu hoch

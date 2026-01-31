@@ -1,0 +1,212 @@
+# ===========================================
+# VAILLANT HEIZUNGS-AUTOMATIONEN
+# Erstellt von LISA für Murat
+# ===========================================
+#
+# INSTALLATION:
+# 1. In Home Assistant: Einstellungen -> Automationen -> Automation hinzufügen
+# 2. 3-Punkte-Menü -> "Als YAML bearbeiten"
+# 3. Jeweilige Automation einfügen
+#
+# ODER: Diesen Inhalt zu configuration.yaml hinzufügen unter "automation:"
+#
+# ===========================================
+
+# ----------------------------------------
+# AUTOMATION 1: Nacht-Absenkung
+# Reduziert die Heizung nachts automatisch
+# ----------------------------------------
+- id: heizung_nacht_absenkung
+  alias: "Heizung: Nacht-Absenkung aktivieren"
+  description: "Senkt die Heizung ab 22:00 Uhr"
+  trigger:
+    - platform: time
+      at: "22:00:00"
+  condition:
+    - condition: state
+      entity_id: binary_sensor.ebusd_global_running
+      state: "on"
+  action:
+    - service: mqtt.publish
+      data:
+        topic: "ebusd/hc/TempDesiredLow/set"
+        payload: "16"
+    - service: notify.persistent_notification
+      data:
+        title: "Heizung"
+        message: "Nacht-Absenkung aktiviert (16°C)"
+  mode: single
+
+# ----------------------------------------
+# AUTOMATION 2: Morgen-Aufheizen
+# Heizt morgens wieder auf
+# ----------------------------------------
+- id: heizung_morgen_aufheizen
+  alias: "Heizung: Morgen-Aufheizen"
+  description: "Heizt ab 6:00 Uhr morgens auf"
+  trigger:
+    - platform: time
+      at: "06:00:00"
+  condition:
+    - condition: time
+      weekday:
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
+  action:
+    - service: mqtt.publish
+      data:
+        topic: "ebusd/hc/TempDesired/set"
+        payload: "21"
+    - service: notify.persistent_notification
+      data:
+        title: "Heizung"
+        message: "Morgen-Heizung aktiviert (21°C)"
+  mode: single
+
+# ----------------------------------------
+# AUTOMATION 3: Wochenende später aufheizen
+# Am Wochenende erst um 8:00 Uhr
+# ----------------------------------------
+- id: heizung_wochenende_aufheizen
+  alias: "Heizung: Wochenende später aufheizen"
+  description: "Am Wochenende erst um 8:00 Uhr heizen"
+  trigger:
+    - platform: time
+      at: "08:00:00"
+  condition:
+    - condition: time
+      weekday:
+        - sat
+        - sun
+  action:
+    - service: mqtt.publish
+      data:
+        topic: "ebusd/hc/TempDesired/set"
+        payload: "21"
+    - service: notify.persistent_notification
+      data:
+        title: "Heizung"
+        message: "Wochenend-Heizung aktiviert (21°C)"
+  mode: single
+
+# ----------------------------------------
+# AUTOMATION 4: Außentemperatur-basierte Anpassung
+# Wenn es draußen warm ist, Heizung reduzieren
+# ----------------------------------------
+- id: heizung_aussentemp_warm
+  alias: "Heizung: Bei warmem Wetter reduzieren"
+  description: "Reduziert Heizung wenn Außentemp > 15°C"
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.ebusd_hc_outsidetemp_temp
+      above: 59  # 15°C in Fahrenheit
+      for:
+        minutes: 30
+  action:
+    - service: mqtt.publish
+      data:
+        topic: "ebusd/hc/TempDesired/set"
+        payload: "18"
+    - service: notify.persistent_notification
+      data:
+        title: "Heizung"
+        message: "Außentemperatur > 15°C - Heizung reduziert auf 18°C"
+  mode: single
+
+# ----------------------------------------
+# AUTOMATION 5: Frost-Schutz
+# Verhindert Einfrieren bei sehr kalten Temperaturen
+# ----------------------------------------
+- id: heizung_frostschutz
+  alias: "Heizung: Frostschutz aktivieren"
+  description: "Aktiviert Frostschutz unter 0°C"
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.ebusd_hc_outsidetemp_temp
+      below: 32  # 0°C in Fahrenheit
+      for:
+        minutes: 15
+  action:
+    - service: mqtt.publish
+      data:
+        topic: "ebusd/hc/TempDesired/set"
+        payload: "19"
+    - service: notify.persistent_notification
+      data:
+        title: "⚠️ Heizung"
+        message: "Frostschutz! Außentemp < 0°C - Mindesttemperatur 19°C"
+  mode: single
+
+# ----------------------------------------
+# AUTOMATION 6: Überhitzungs-Warnung
+# Warnt wenn Vorlauf zu hoch ist
+# ----------------------------------------
+- id: heizung_ueberhitzung_warnung
+  alias: "Heizung: Überhitzungs-Warnung"
+  description: "Warnt bei Vorlauf > 70°C"
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.ebusd_bai_flowtemp_temp
+      above: 158  # 70°C in Fahrenheit
+      for:
+        minutes: 5
+  action:
+    - service: notify.persistent_notification
+      data:
+        title: "🔴 WARNUNG: Heizung"
+        message: "Vorlauftemperatur über 70°C! Bitte prüfen!"
+  mode: single
+
+# ----------------------------------------
+# AUTOMATION 7: Niemand zu Hause - Eco-Modus
+# Wenn alle weg sind, auf Eco schalten
+# HINWEIS: Benötigt person.murat oder device_tracker
+# ----------------------------------------
+- id: heizung_niemand_zuhause
+  alias: "Heizung: Eco wenn niemand zu Hause"
+  description: "Aktiviert Eco-Modus wenn niemand da ist"
+  trigger:
+    - platform: state
+      entity_id: zone.home
+      to: "0"  # Keine Person zu Hause
+      for:
+        minutes: 30
+  action:
+    - service: mqtt.publish
+      data:
+        topic: "ebusd/hc/TempDesired/set"
+        payload: "17"
+    - service: notify.persistent_notification
+      data:
+        title: "Heizung"
+        message: "Niemand zu Hause - Eco-Modus (17°C)"
+  mode: single
+
+# ----------------------------------------
+# AUTOMATION 8: Jemand kommt nach Hause
+# Heizung wieder hochfahren
+# ----------------------------------------
+- id: heizung_jemand_kommt
+  alias: "Heizung: Aufheizen wenn jemand kommt"
+  description: "Heizt auf wenn jemand nach Hause kommt"
+  trigger:
+    - platform: numeric_state
+      entity_id: zone.home
+      above: 0  # Mindestens 1 Person zu Hause
+  condition:
+    - condition: time
+      after: "06:00:00"
+      before: "22:00:00"
+  action:
+    - service: mqtt.publish
+      data:
+        topic: "ebusd/hc/TempDesired/set"
+        payload: "21"
+    - service: notify.persistent_notification
+      data:
+        title: "Heizung"
+        message: "Willkommen zu Hause! Heizung auf 21°C"
+  mode: single

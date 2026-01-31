@@ -1,0 +1,173 @@
+# ===========================================
+# VAILLANT HEIZUNGS-DASHBOARD
+# Erstellt von LISA für Murat
+# ===========================================
+#
+# INSTALLATION:
+# 1. In Home Assistant: Einstellungen -> Dashboards -> Dashboard hinzufügen
+# 2. Name: "Heizung", Icon: mdi:radiator
+# 3. Dashboard öffnen -> 3-Punkte-Menü -> Raw-Konfiguration bearbeiten
+# 4. Diesen YAML-Code einfügen
+#
+# ===========================================
+
+title: Heizung
+views:
+  - title: Übersicht
+    path: overview
+    icon: mdi:radiator
+    badges: []
+    cards:
+      # --- HEADER: Aktueller Status ---
+      - type: markdown
+        content: |
+          # 🔥 Vaillant Heizungssteuerung
+          **Letzte Aktualisierung:** {{ now().strftime('%d.%m.%Y %H:%M') }}
+
+      # --- TEMPERATUREN KARTE ---
+      - type: entities
+        title: 🌡️ Temperaturen
+        show_header_toggle: false
+        entities:
+          - entity: sensor.ebusd_bai_flowtemp_temp
+            name: Vorlauftemperatur
+            icon: mdi:thermometer
+          - entity: sensor.ebusd_bai_flowtempdesired
+            name: Soll-Vorlauf
+            icon: mdi:thermometer-check
+          - entity: sensor.ebusd_bai_flowtempmax
+            name: Max. Vorlauf
+            icon: mdi:thermometer-high
+          - entity: sensor.ebusd_hc_outsidetemp_temp
+            name: Außentemperatur
+            icon: mdi:thermometer-lines
+          - entity: sensor.ebusd_hwc_hwctemp_temp
+            name: Warmwasser-Temperatur
+            icon: mdi:water-thermometer
+
+      # --- BRENNER STATUS ---
+      - type: entities
+        title: 🔥 Brenner Status
+        show_header_toggle: false
+        entities:
+          - entity: binary_sensor.ebusd_global_running
+            name: eBUS Verbindung
+          - entity: binary_sensor.ebusd_global_signal
+            name: eBUS Signal
+          - entity: sensor.ebusd_bai_displaymode
+            name: Display-Modus
+          - entity: sensor.ebusd_bai_hcpumpmode
+            name: Pumpen-Modus
+
+      # --- BETRIEBSSTUNDEN ---
+      - type: entities
+        title: ⏱️ Betriebsstunden
+        show_header_toggle: false
+        entities:
+          - entity: sensor.ebusd_bai_fanhours
+            name: Lüfter-Stunden
+            icon: mdi:fan
+          - entity: sensor.ebusd_bai_hchours
+            name: Heizkreis-Stunden
+            icon: mdi:radiator
+          - entity: sensor.ebusd_bai_hcstarts
+            name: Heizkreis-Starts
+            icon: mdi:counter
+
+      # --- TEMPERATUR-VERLAUF GRAPH ---
+      - type: history-graph
+        title: 📈 Temperaturverlauf (24h)
+        hours_to_show: 24
+        refresh_interval: 300
+        entities:
+          - entity: sensor.ebusd_bai_flowtemp_temp
+            name: Vorlauf
+          - entity: sensor.ebusd_hc_outsidetemp_temp
+            name: Außen
+
+  # --- ZWEITE ANSICHT: Heizkreis Details ---
+  - title: Heizkreis
+    path: heizkreis
+    icon: mdi:heating-coil
+    cards:
+      - type: markdown
+        content: |
+          # ♨️ Heizkreis-Einstellungen
+
+      - type: entities
+        title: Heizkreis Parameter
+        entities:
+          - entity: sensor.ebusd_hc_heatingcurve
+            name: Heizkurve
+            icon: mdi:chart-bell-curve
+          - entity: sensor.ebusd_hc_flowtempdesired
+            name: Soll-Vorlauf HC
+          - entity: sensor.ebusd_hc_flowtempmax
+            name: Max. Vorlauf HC
+          - entity: sensor.ebusd_hc_flowtempmin
+            name: Min. Vorlauf HC
+          - entity: sensor.ebusd_hc_operatingmode
+            name: Betriebsmodus
+          - entity: sensor.ebusd_hc_tempdesired
+            name: Soll-Raumtemperatur
+          - entity: sensor.ebusd_hc_tempdesiredlow
+            name: Soll-Temp Absenkung
+
+  # --- DRITTE ANSICHT: Warmwasser ---
+  - title: Warmwasser
+    path: warmwasser
+    icon: mdi:water-boiler
+    cards:
+      - type: markdown
+        content: |
+          # 🚿 Warmwasser
+
+      - type: entities
+        title: Warmwasser Status
+        entities:
+          - entity: binary_sensor.ebusd_hwc_status_onoff
+            name: Warmwasser aktiv
+          - entity: sensor.ebusd_hwc_hwctemp_temp
+            name: WW-Temperatur
+          - entity: sensor.ebusd_hwc_hwctempmax
+            name: WW Max-Temp
+          - entity: sensor.ebusd_bai_hwchours
+            name: WW Betriebsstunden
+          - entity: sensor.ebusd_bai_hwcstarts
+            name: WW Starts
+
+  # --- VIERTE ANSICHT: Timer/Zeitprogramme ---
+  - title: Zeitprogramme
+    path: timer
+    icon: mdi:clock-outline
+    cards:
+      - type: markdown
+        content: |
+          # ⏰ Zeitprogramme
+          Die Timer werden von der Vaillant gesteuert.
+
+      - type: entities
+        title: Montag
+        entities:
+          - entity: sensor.ebusd_hc_timer_monday_daysel
+            name: Modus
+          - entity: sensor.ebusd_hc_timer_monday_from
+            name: Start 1
+          - entity: sensor.ebusd_hc_timer_monday_to
+            name: Ende 1
+
+      - type: entities
+        title: Dienstag bis Sonntag
+        entities:
+          - entity: sensor.ebusd_hc_timer_tuesday_daysel
+            name: Dienstag
+          - entity: sensor.ebusd_hc_timer_wednesday_daysel
+            name: Mittwoch
+          - entity: sensor.ebusd_hc_timer_thursday_daysel
+            name: Donnerstag
+          - entity: sensor.ebusd_hc_timer_friday_daysel
+            name: Freitag
+          - entity: sensor.ebusd_hc_timer_saturday_daysel
+            name: Samstag
+          - entity: sensor.ebusd_hc_timer_sunday_daysel
+            name: Sonntag

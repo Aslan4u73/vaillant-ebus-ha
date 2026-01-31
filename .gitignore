@@ -1,0 +1,40 @@
+# Secrets - NIEMALS COMMITTEN!
+secrets.yaml
+*.secret
+.env
+.env.*
+
+# Home Assistant spezifisch
+home-assistant.log
+home-assistant_v2.db
+*.db-shm
+*.db-wal
+
+# OS spezifisch
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# Temporäre Dateien
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Persönliche Notizen (falls vorhanden)
+NOTES.md
+TODO.md
+PRIVATE/

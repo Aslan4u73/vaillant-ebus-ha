@@ -1,0 +1,113 @@
+# ===========================================
+# ECHTZEIT-MODUS KONFIGURATION
+# Erstellt von LISA für Murat
+# ===========================================
+#
+# INSTALLATION:
+# 1. Diesen Inhalt zu configuration.yaml hinzufügen
+# 2. Home Assistant neu starten
+#
+# Ermöglicht Umschalten zwischen:
+# - ECHTZEIT: Aktive Abfrage alle 5 Sekunden
+# - NORMAL: Standard-Polling (30 Sekunden)
+# ===========================================
+
+# ----------------------------------------
+# TOGGLE SCHALTER
+# ----------------------------------------
+input_boolean:
+  heizung_echtzeit_modus:
+    name: "Heizung Echtzeit-Modus"
+    icon: mdi:speedometer
+
+# ----------------------------------------
+# AUTOMATION: ECHTZEIT-POLLING
+# ----------------------------------------
+# Diese Automation fragt wichtige Sensoren
+# aktiv ab wenn Echtzeit-Modus aktiviert ist
+# ----------------------------------------
+automation:
+  - id: heizung_echtzeit_polling
+    alias: "Heizung Echtzeit-Polling"
+    description: "Fragt Heizungs-Sensoren alle 5 Sekunden ab wenn Echtzeit-Modus aktiv"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: input_boolean.heizung_echtzeit_modus
+        to: "on"
+      - platform: time_pattern
+        seconds: "/5"
+    condition:
+      - condition: state
+        entity_id: input_boolean.heizung_echtzeit_modus
+        state: "on"
+    action:
+      # MQTT Publish um ebusd zum Lesen aufzufordern
+      # ebusd reagiert auf leere Messages mit sofortiger Abfrage
+      - service: mqtt.publish
+        data:
+          topic: "ebusd/bai/FlowTemp/get"
+          payload: ""
+      - service: mqtt.publish
+        data:
+          topic: "ebusd/bai/ReturnTemp/get"
+          payload: ""
+      - service: mqtt.publish
+        data:
+          topic: "ebusd/bai/FlowTempDesired/get"
+          payload: ""
+      - service: mqtt.publish
+        data:
+          topic: "ebusd/bai/Status01/get"
+          payload: ""
+      - service: mqtt.publish
+        data:
+          topic: "ebusd/bai/SetMode/get"
+          payload: ""
+      - service: mqtt.publish
+        data:
+          topic: "ebusd/hc/HeatingCurve/get"
+          payload: ""
+      - service: mqtt.publish
+        data:
+          topic: "ebusd/bai/WaterPressure/get"
+          payload: ""
+
+  # Auto-Abschaltung nach 30 Minuten
+  - id: heizung_echtzeit_auto_aus
+    alias: "Heizung Echtzeit Auto-Aus"
+    description: "Schaltet Echtzeit-Modus nach 30 Minuten automatisch aus"
+    trigger:
+      - platform: state
+        entity_id: input_boolean.heizung_echtzeit_modus
+        to: "on"
+        for:
+          minutes: 30
+    action:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.heizung_echtzeit_modus
+      - service: persistent_notification.create
+        data:
+          title: "⏱️ Echtzeit-Modus beendet"
+          message: "Echtzeit-Modus wurde nach 30 Minuten automatisch deaktiviert um Ressourcen zu sparen."
+
+# ----------------------------------------
+# TEMPLATE SENSOR: MODUS-ANZEIGE
+# ----------------------------------------
+template:
+  - sensor:
+      - name: "Heizung Polling Modus"
+        unique_id: heizung_polling_modus
+        icon: >
+          {% if is_state('input_boolean.heizung_echtzeit_modus', 'on') %}
+            mdi:speedometer
+          {% else %}
+            mdi:speedometer-slow
+          {% endif %}
+        state: >
+          {% if is_state('input_boolean.heizung_echtzeit_modus', 'on') %}
+            Echtzeit (5s)
+          {% else %}
+            Normal (30s)
+          {% endif %}

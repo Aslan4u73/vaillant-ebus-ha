@@ -1,0 +1,498 @@
+# ===========================================
+# 🔥 VAILLANT PROFI-DASHBOARD
+# Das ultimative Heizungs-Kontrollzentrum
+# Erstellt von LISA für Murat 💙
+# ===========================================
+#
+# FEATURES:
+# - Echtzeit-Überwachung aller Werte
+# - Heizkurven-Visualisierung
+# - Zirkulations-Monitoring
+# - Brenner-Laufzeit-Analyse
+# - Effizienz-Bewertung
+# - Kostenprognose
+# - Alarm-System
+#
+# ===========================================
+
+title: Heizung Profi
+views:
+  # ==========================================
+  # 🎛️ HAUPTÜBERSICHT - Alles auf einen Blick
+  # ==========================================
+  - title: Übersicht
+    path: uebersicht
+    icon: mdi:view-dashboard
+    type: sections
+    sections:
+      # --- HEADER STATUS ---
+      - type: grid
+        cards:
+          - type: markdown
+            content: |
+              # 🔥 Vaillant Heizungs-Kontrollzentrum
+              **Status:** {% if is_state('binary_sensor.ebusd_global_running', 'on') %}🟢 Online{% else %}🔴 Offline{% endif %} |
+              **Heizkurve:** {{ states('sensor.ebusd_hc_heatingcurve') }} |
+              **Pumpe:** {{ states('sensor.ebusd_bai_hcpumpmode') }}
+
+      # --- TEMPERATUR GAUGES ---
+      - type: grid
+        cards:
+          - type: gauge
+            entity: sensor.heizung_vorlauf_celsius
+            name: "🌡️ Vorlauf"
+            min: 20
+            max: 80
+            needle: true
+            severity:
+              green: 35
+              yellow: 50
+              red: 60
+            segments:
+              - from: 20
+                color: '#43A047'
+              - from: 40
+                color: '#FFA726'
+              - from: 55
+                color: '#E53935'
+
+          - type: gauge
+            entity: sensor.heizung_soll_vorlauf_celsius
+            name: "🎯 Soll-Vorlauf"
+            min: 0
+            max: 80
+            needle: true
+
+          - type: gauge
+            entity: sensor.ebusd_hc_heatingcurve
+            name: "📈 Heizkurve"
+            min: 0.5
+            max: 2.0
+            needle: true
+            severity:
+              green: 0.8
+              yellow: 1.2
+              red: 1.5
+
+          - type: gauge
+            entity: sensor.heizung_brenner_anteil_heute
+            name: "⚡ Brenner-Last"
+            min: 0
+            max: 100
+            needle: true
+            severity:
+              green: 25
+              yellow: 40
+              red: 55
+
+      # --- STATUS KARTEN ---
+      - type: grid
+        cards:
+          - type: entity
+            entity: binary_sensor.ebusd_global_running
+            name: "eBUS Status"
+            icon: mdi:connection
+
+          - type: entity
+            entity: binary_sensor.ebusd_hwc_status_onoff
+            name: "Warmwasser"
+            icon: mdi:water-boiler
+
+          - type: entity
+            entity: sensor.ebusd_bai_displaymode
+            name: "Display"
+
+          - type: entity
+            entity: sensor.ebusd_bai_hcpumpmode
+            name: "Pumpen-Modus"
+
+  # ==========================================
+  # 🌡️ TEMPERATUREN - Detaillierte Ansicht
+  # ==========================================
+  - title: Temperaturen
+    path: temperaturen
+    icon: mdi:thermometer
+    cards:
+      - type: markdown
+        content: "# 🌡️ Temperatur-Übersicht"
+
+      # Haupt-Temperaturen Karte
+      - type: entities
+        title: "📊 Aktuelle Temperaturen"
+        state_color: true
+        entities:
+          - entity: sensor.heizung_vorlauf_celsius
+            name: "🔴 Vorlauf (aktuell)"
+            icon: mdi:thermometer-high
+          - entity: sensor.heizung_soll_vorlauf_celsius
+            name: "🎯 Vorlauf (Soll)"
+            icon: mdi:thermometer-check
+          - type: divider
+          - entity: sensor.ebusd_bai_flowtempmax
+            name: "⬆️ Vorlauf Maximum"
+          - entity: sensor.ebusd_hc_flowtempmin
+            name: "⬇️ Vorlauf Minimum"
+          - type: divider
+          - entity: sensor.ebusd_hwc_hwctemp_temp
+            name: "🚿 Warmwasser"
+            icon: mdi:water-thermometer
+          - entity: sensor.ebusd_hwc_hwctempmax
+            name: "🚿 Warmwasser Max"
+
+      # Temperatur-Verlauf Grafik
+      - type: history-graph
+        title: "📈 Temperaturverlauf (24h)"
+        hours_to_show: 24
+        refresh_interval: 120
+        entities:
+          - entity: sensor.heizung_vorlauf_celsius
+            name: "Vorlauf"
+          - entity: sensor.heizung_soll_vorlauf_celsius
+            name: "Soll"
+
+      # Statistik
+      - type: horizontal-stack
+        cards:
+          - type: statistic
+            entity: sensor.heizung_vorlauf_celsius
+            name: "Ø Heute"
+            period:
+              calendar:
+                period: day
+            stat_type: mean
+
+          - type: statistic
+            entity: sensor.heizung_vorlauf_celsius
+            name: "Max Heute"
+            period:
+              calendar:
+                period: day
+            stat_type: max
+
+          - type: statistic
+            entity: sensor.heizung_vorlauf_celsius
+            name: "Min Heute"
+            period:
+              calendar:
+                period: day
+            stat_type: min
+
+  # ==========================================
+  # 📈 HEIZKURVE - Analyse & Optimierung
+  # ==========================================
+  - title: Heizkurve
+    path: heizkurve
+    icon: mdi:chart-bell-curve-cumulative
+    cards:
+      - type: markdown
+        content: |
+          # 📈 Heizkurven-Analyse
+
+          **Deine aktuelle Heizkurve:** {{ states('sensor.ebusd_hc_heatingcurve') }}
+
+          ---
+
+          ## Was bedeutet die Heizkurve?
+
+          Die Heizkurve bestimmt die **Vorlauftemperatur** abhängig von der **Außentemperatur**:
+
+          | Außentemp | Heizkurve 1.0 | Heizkurve 1.3 (DEIN WERT) | Heizkurve 1.5 |
+          |-----------|---------------|---------------------------|---------------|
+          | +10°C | ~30°C | ~35°C | ~38°C |
+          | +5°C | ~38°C | ~43°C | ~48°C |
+          | 0°C | ~45°C | ~52°C | ~58°C |
+          | -5°C | ~52°C | ~60°C | ~68°C |
+          | -10°C | ~60°C | ~70°C | ~78°C |
+
+          **Dein saniertes Haus braucht ca. 0.8-1.0!**
+
+      - type: entities
+        title: "⚙️ Heizkurven-Einstellungen"
+        entities:
+          - entity: sensor.ebusd_hc_heatingcurve
+            name: "📈 Aktuelle Heizkurve"
+            icon: mdi:chart-line
+          - entity: sensor.ebusd_hc_flowtempdesired
+            name: "🎯 Berechneter Soll-Vorlauf"
+          - entity: sensor.ebusd_hc_flowtempmax
+            name: "⬆️ Max. erlaubter Vorlauf"
+          - entity: sensor.ebusd_hc_flowtempmin
+            name: "⬇️ Min. erlaubter Vorlauf"
+
+      - type: history-graph
+        title: "📊 Heizkurve über Zeit"
+        hours_to_show: 168
+        entities:
+          - entity: sensor.ebusd_hc_heatingcurve
+            name: "Heizkurve"
+
+      # Empfehlungs-Box
+      - type: markdown
+        content: |
+          ## 💡 Empfehlung für dein Haus
+
+          | Haustyp | Empfohlene Heizkurve |
+          |---------|---------------------|
+          | Neubau/Passivhaus | 0.4 - 0.6 |
+          | **Saniert (DU!)** | **0.8 - 1.0** |
+          | Altbau normal | 1.2 - 1.4 |
+          | Altbau unsaniert | 1.5 - 1.8 |
+
+          **Dein Wert (1.3) ist zu hoch!** → Nach Baseline-Messung auf **1.0** reduzieren!
+
+  # ==========================================
+  # 🔄 ZIRKULATION & PUMPE
+  # ==========================================
+  - title: Zirkulation
+    path: zirkulation
+    icon: mdi:pump
+    cards:
+      - type: markdown
+        content: "# 🔄 Zirkulation & Pumpen-Status"
+
+      - type: entities
+        title: "💧 Pumpen-Status"
+        state_color: true
+        entities:
+          - entity: sensor.ebusd_bai_hcpumpmode
+            name: "🔄 Heizkreis-Pumpe Modus"
+            icon: mdi:pump
+          - entity: sensor.ebusd_bai_hcpumpstarts
+            name: "🔢 Pumpen-Starts gesamt"
+          - type: divider
+          - entity: binary_sensor.ebusd_hwc_status_onoff
+            name: "🚿 Warmwasser-Zirkulation"
+          - entity: sensor.ebusd_bai_hwchours
+            name: "⏱️ WW-Betriebsstunden"
+          - entity: sensor.ebusd_bai_hwcstarts
+            name: "🔢 WW-Starts gesamt"
+
+      - type: history-graph
+        title: "📊 Warmwasser-Aktivität (24h)"
+        hours_to_show: 24
+        entities:
+          - entity: binary_sensor.ebusd_hwc_status_onoff
+            name: "Warmwasser aktiv"
+
+      - type: markdown
+        content: |
+          ## 💡 Zirkulations-Tipps
+
+          **Weniger Zirkulation = Weniger Energieverlust!**
+
+          - Warmwasser nur zu Stoßzeiten zirkulieren (morgens, abends)
+          - Zirkulationsleitung dämmen
+          - Timer für Zirkulationspumpe nutzen
+
+  # ==========================================
+  # ⚡ BRENNER-ANALYSE
+  # ==========================================
+  - title: Brenner
+    path: brenner
+    icon: mdi:fire
+    cards:
+      - type: markdown
+        content: "# ⚡ Brenner-Analyse"
+
+      - type: horizontal-stack
+        cards:
+          - type: entity
+            entity: sensor.heizung_brenner_laufzeit_heute
+            name: "Heute"
+            icon: mdi:clock
+
+          - type: entity
+            entity: sensor.heizung_brenner_laufzeit_gestern
+            name: "Gestern"
+            icon: mdi:clock-outline
+
+          - type: entity
+            entity: sensor.heizung_brenner_anteil_heute
+            name: "Anteil %"
+            icon: mdi:percent
+
+      - type: entities
+        title: "📊 Betriebsstunden"
+        entities:
+          - entity: sensor.ebusd_bai_fanhours
+            name: "🌀 Lüfter-Stunden gesamt"
+            icon: mdi:fan
+          - entity: sensor.ebusd_bai_hchours
+            name: "🔥 Heizkreis-Stunden gesamt"
+            icon: mdi:fire
+          - entity: sensor.ebusd_bai_hcstarts
+            name: "🔄 Heizkreis-Starts gesamt"
+            icon: mdi:counter
+          - type: divider
+          - entity: sensor.heizung_starts_taeglich
+            name: "📅 Starts heute"
+          - entity: sensor.heizung_starts_woechentlich
+            name: "📅 Starts diese Woche"
+
+      - type: history-graph
+        title: "📈 Brenner-Aktivität (24h)"
+        hours_to_show: 24
+        entities:
+          - entity: sensor.heizung_brenner_aktiv
+            name: "Brenner"
+
+      - type: markdown
+        content: |
+          ## 💡 Brenner-Optimierung
+
+          **Ziel: Wenige, lange Brennerläufe statt viele kurze!**
+
+          | Messwert | Optimal | Schlecht |
+          |----------|---------|----------|
+          | Starts/Tag | < 10 | > 20 |
+          | Laufzeit/Start | > 15 Min | < 5 Min |
+          | Tages-Anteil | 20-35% | > 50% |
+
+          **Viele kurze Starts = Takten = Ineffizient & Verschleiß!**
+
+  # ==========================================
+  # 💰 KOSTEN & EFFIZIENZ
+  # ==========================================
+  - title: Effizienz
+    path: effizienz
+    icon: mdi:currency-eur
+    cards:
+      - type: markdown
+        content: |
+          # 💰 Effizienz & Kostenanalyse
+
+          **Jedes Grad weniger Vorlauf = 2-3% weniger Gaskosten!**
+
+      - type: horizontal-stack
+        cards:
+          - type: gauge
+            entity: sensor.heizung_vorlauf_24h_durchschnitt
+            name: "Ø Vorlauf"
+            min: 25
+            max: 70
+            needle: true
+            severity:
+              green: 40
+              yellow: 50
+              red: 60
+
+          - type: gauge
+            entity: sensor.ebusd_hc_heatingcurve
+            name: "Heizkurve"
+            min: 0.5
+            max: 2.0
+            severity:
+              green: 1.0
+              yellow: 1.3
+              red: 1.5
+
+      - type: markdown
+        content: |
+          ## 📊 Deine Effizienz-Bewertung
+
+          | Parameter | Wert | Bewertung |
+          |-----------|------|-----------|
+          | Heizkurve | {{ states('sensor.ebusd_hc_heatingcurve') }} | {% if states('sensor.ebusd_hc_heatingcurve')|float <= 1.0 %}✅ Optimal{% elif states('sensor.ebusd_hc_heatingcurve')|float <= 1.3 %}⚠️ Zu hoch{% else %}❌ Viel zu hoch{% endif %} |
+          | Ø Vorlauf 24h | {{ states('sensor.heizung_vorlauf_24h_durchschnitt')|round(1) }}°C | {% if states('sensor.heizung_vorlauf_24h_durchschnitt')|float <= 42 %}✅ Optimal{% elif states('sensor.heizung_vorlauf_24h_durchschnitt')|float <= 50 %}⚠️ Etwas hoch{% else %}❌ Zu hoch{% endif %} |
+          | Brenner % | {{ states('sensor.heizung_brenner_anteil_heute')|round(0) }}% | {% if states('sensor.heizung_brenner_anteil_heute')|float <= 30 %}✅ Sparsam{% elif states('sensor.heizung_brenner_anteil_heute')|float <= 45 %}⚠️ Normal{% else %}❌ Zu viel{% endif %} |
+
+          ---
+
+          ## 💡 Geschätztes Einsparpotential
+
+          Bei Reduzierung der Heizkurve von **1.3 auf 1.0**:
+
+          - Vorlauf-Reduktion: ca. **8-10°C**
+          - Erwartete Ersparnis: ca. **15-25%**
+          - Bei 2000€/Jahr Gas: ca. **300-500€ sparen!**
+
+  # ==========================================
+  # ⏰ ZEITPROGRAMME
+  # ==========================================
+  - title: Zeitprogramme
+    path: zeiten
+    icon: mdi:clock-outline
+    cards:
+      - type: markdown
+        content: "# ⏰ Heizzeiten & Programme"
+
+      - type: entities
+        title: "📅 Wochenprogramm Heizkreis"
+        entities:
+          - entity: sensor.ebusd_hc_timer_monday_daysel
+            name: "Montag"
+          - entity: sensor.ebusd_hc_timer_tuesday_daysel
+            name: "Dienstag"
+          - entity: sensor.ebusd_hc_timer_wednesday_daysel
+            name: "Mittwoch"
+          - entity: sensor.ebusd_hc_timer_thursday_daysel
+            name: "Donnerstag"
+          - entity: sensor.ebusd_hc_timer_friday_daysel
+            name: "Freitag"
+          - entity: sensor.ebusd_hc_timer_saturday_daysel
+            name: "Samstag"
+          - entity: sensor.ebusd_hc_timer_sunday_daysel
+            name: "Sonntag"
+
+      - type: entities
+        title: "🌡️ Temperatur-Einstellungen"
+        entities:
+          - entity: sensor.ebusd_hc_tempdesired
+            name: "🔥 Soll-Raumtemperatur (Heizen)"
+          - entity: sensor.ebusd_hc_tempdesiredlow
+            name: "❄️ Absenktemperatur (Nacht/Eco)"
+          - entity: sensor.ebusd_hc_operatingmode
+            name: "⚙️ Betriebsmodus"
+
+  # ==========================================
+  # 🔧 SYSTEM & DIAGNOSE
+  # ==========================================
+  - title: System
+    path: system
+    icon: mdi:cog
+    cards:
+      - type: markdown
+        content: "# 🔧 System & Diagnose"
+
+      - type: entities
+        title: "📡 Verbindungsstatus"
+        state_color: true
+        entities:
+          - entity: binary_sensor.ebusd_global_running
+            name: "eBUS Daemon"
+          - entity: binary_sensor.ebusd_global_signal
+            name: "eBUS Signal"
+
+      - type: entities
+        title: "📊 System-Statistiken"
+        entities:
+          - entity: sensor.ebusd_bai_fanhours
+            name: "Lüfter Gesamt-Stunden"
+          - entity: sensor.ebusd_bai_fanstarts
+            name: "Lüfter Gesamt-Starts"
+          - entity: sensor.ebusd_bai_hchours
+            name: "Heizkreis Gesamt-Stunden"
+          - entity: sensor.ebusd_bai_hcstarts
+            name: "Heizkreis Gesamt-Starts"
+          - type: divider
+          - entity: sensor.ebusd_hc_statoperatinghours
+            name: "Regler Betriebsstunden"
+          - entity: sensor.ebusd_hc_statrestarts
+            name: "Regler Neustarts"
+
+      - type: entities
+        title: "🔧 Service-Info"
+        entities:
+          - entity: sensor.ebusd_bai_hourstillservice
+            name: "Stunden bis Service"
+          - entity: sensor.ebusd_bai_maintenancedata_hwc
+            name: "Wartungsdaten WW"
+
+      - type: markdown
+        content: |
+          ## 💡 Wartungs-Hinweise
+
+          - **Jährliche Wartung** durch Fachmann empfohlen
+          - **Wasserdruck** regelmäßig prüfen (1.5-2.0 bar)
+          - **Filter** in Rücklauf regelmäßig reinigen
+          - **Entlüften** der Heizkörper vor Heizsaison
