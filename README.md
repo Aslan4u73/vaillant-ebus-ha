@@ -11,7 +11,7 @@
 
 ## Disclaimer / Haftungsausschluss
 
-> **⚠️ WICHTIGER HINWEIS**
+> **⚠️ WICHTIGER HINWEIS !!**
 >
 > Dieses Projekt dokumentiert meine **persönlichen Erfahrungen** mit meiner eigenen Heizungsanlage. Es wird **keine Garantie** für Funktionalität, Sicherheit oder Kompatibilität mit anderen Systemen übernommen.
 >
