@@ -199,3 +199,4 @@ Bei Fragen oder Problemen:
   <i>Gefällt dir dieses Projekt? Gib einen ⭐ Star!</i><br>
   <i>Fragen oder Verbesserungsvorschläge? Erstelle ein <a href="https://github.com/Aslan4u73/vaillant-ebus-ha/issues">Issue</a>!</i>
 </p>
+
